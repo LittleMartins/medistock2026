@@ -93,15 +93,23 @@ export class AdminProductosComponent implements OnInit {
     }
   }
 
-  // Función para limpiar campos undefined/null
+  // Función para limpiar campos undefined/null de forma recursiva
   cleanUndefined(obj: any): any {
-    const newObj: any = {};
-    Object.keys(obj).forEach(key => {
-      if (obj[key] !== undefined && obj[key] !== null) {
-        newObj[key] = obj[key];
+    if (obj === null || obj === undefined) return undefined;
+    if (Array.isArray(obj)) {
+      return obj.map(item => this.cleanUndefined(item)).filter(item => item !== undefined);
+    }
+    if (typeof obj === 'object') {
+      const newObj: any = {};
+      for (const key of Object.keys(obj)) {
+        const cleaned = this.cleanUndefined(obj[key]);
+        if (cleaned !== undefined) {
+          newObj[key] = cleaned;
+        }
       }
-    });
-    return newObj;
+      return newObj;
+    }
+    return obj;
   }
 
   openAddModal() {
@@ -110,8 +118,6 @@ export class AdminProductosComponent implements OnInit {
       nombre: '',
       descripcion: '',
       precio: 0,
-      precioOferta: undefined,
-      precioEnvioPrioritario: undefined,
       stock: 0,
       bodegas: { principal: 0, norte: 0, sur: 0 },
       codigo: '',
@@ -398,7 +404,7 @@ export class AdminProductosComponent implements OnInit {
                   newProduct.precioOferta = Number(precioOferta);
                 }
 
-                await this.productService.addProduct(newProduct);
+                await this.productService.addProduct(this.cleanUndefined(newProduct));
                 importedCount++;
               } catch (err) {
                 console.error('Error crítico al procesar fila:', row, err);
