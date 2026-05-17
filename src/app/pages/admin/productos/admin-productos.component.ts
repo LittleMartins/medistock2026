@@ -93,6 +93,17 @@ export class AdminProductosComponent implements OnInit {
     }
   }
 
+  // Función para limpiar campos undefined/null
+  cleanUndefined(obj: any): any {
+    const newObj: any = {};
+    Object.keys(obj).forEach(key => {
+      if (obj[key] !== undefined && obj[key] !== null) {
+        newObj[key] = obj[key];
+      }
+    });
+    return newObj;
+  }
+
   openAddModal() {
     this.isEditing = false;
     this.currentProduct = {
@@ -207,7 +218,7 @@ export class AdminProductosComponent implements OnInit {
 
         const { id, ...updateData } = this.currentProduct as any;
         updateData.updatedAt = new Date().toISOString();
-        await this.productService.updateProduct(this.currentProduct.id, updateData);
+        await this.productService.updateProduct(this.currentProduct.id, this.cleanUndefined(updateData));
         
         if (stockDiff !== 0) {
           await this.inventoryService.logMovement({
@@ -229,11 +240,11 @@ export class AdminProductosComponent implements OnInit {
         
         this.modalService.showAlert('¡Éxito!', 'Producto actualizado exitosamente', 'success');
       } else {
-        const newProductData = {
+        const newProductData = this.cleanUndefined({
           ...this.currentProduct,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
-        } as Omit<Product, 'id'>;
+        }) as Omit<Product, 'id'>;
         
         const docRef = await this.productService.addProduct(newProductData);
         
