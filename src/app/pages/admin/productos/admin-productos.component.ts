@@ -42,6 +42,9 @@ export class AdminProductosComponent implements OnInit {
   imageUploading = false;
   galleryImageUploading: { [key: number]: boolean } = {};
   galleryImageTabs: { [key: number]: 'url' | 'device' } = {};
+  
+  // Bandera para prevenir doble clic
+  isSaving = false;
 
   products: Product[] = [];
   filteredProducts: Product[] = [];
@@ -214,8 +217,9 @@ export class AdminProductosComponent implements OnInit {
   }
 
   async saveProduct() {
-    if (!this.currentProduct.nombre || !this.currentProduct.codigo || !this.currentProduct.precio) return;
+    if (!this.currentProduct.nombre || !this.currentProduct.codigo || !this.currentProduct.precio || this.isSaving) return;
 
+    this.isSaving = true;
     try {
       const adminEmail = this.authService.currentUserValue?.email || 'Admin@admin.com';
       if (this.isEditing && this.currentProduct.id) {
@@ -278,6 +282,8 @@ export class AdminProductosComponent implements OnInit {
     } catch (error) {
       console.error('Error saving product', error);
       this.modalService.showAlert('Error', 'No se pudo guardar el producto', 'error');
+    } finally {
+      this.isSaving = false;
     }
   }
 
