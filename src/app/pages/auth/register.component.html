@@ -1,0 +1,293 @@
+<div class="min-h-screen flex items-center justify-center bg-[#F8FAFC] dark:bg-slate-950 py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-500 relative overflow-hidden">
+  
+  <!-- Background Decorations -->
+  <div class="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
+    <div class="absolute -top-[10%] -right-[10%] w-[40%] h-[40%] bg-primary-100/40 dark:bg-primary-900/10 rounded-full blur-[100px]"></div>
+    <div class="absolute -bottom-[10%] -left-[10%] w-[40%] h-[40%] bg-medical-blue/5 dark:bg-medical-blue/10 rounded-full blur-[100px]"></div>
+  </div>
+
+  <div class="max-w-2xl w-full relative z-10">
+    <div class="text-center mb-10">
+      <a routerLink="/" class="inline-flex items-center space-x-3 mb-8 group">
+        <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary-600 to-medical-blue text-white flex items-center justify-center shadow-lg shadow-primary-500/20 group-hover:scale-105 transition-transform">
+          <lucide-icon [name]="ActivityIcon" class="h-6 w-6"></lucide-icon>
+        </div>
+        <span class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">
+          MEDI<span class="text-primary-600">STOCK</span>
+        </span>
+      </a>
+      <h2 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Crear Cuenta Profesional</h2>
+      <p class="mt-3 text-slate-500 dark:text-slate-400 font-medium">
+        ¿Ya tienes cuenta? 
+        <a routerLink="/login" class="text-primary-600 font-bold hover:text-primary-700 transition-colors">Inicia sesión ahora</a>
+      </p>
+    </div>
+
+    <div class="card p-8 sm:p-12 border-slate-200/50 dark:border-slate-800/50 shadow-2xl">
+      <!-- Error Alert -->
+      <div *ngIf="errorMessage" class="mb-8 p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 flex items-center gap-3 animate-shake">
+        <lucide-icon [name]="XCircleIcon" class="h-5 w-5 text-red-600"></lucide-icon>
+        <p class="text-sm font-bold text-red-700 dark:text-red-400">{{ errorMessage }}</p>
+      </div>
+
+      <!-- Form -->
+      <form class="space-y-10" (ngSubmit)="onSubmit()">
+        
+        <!-- Account Type Selection -->
+        <div class="space-y-4">
+          <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Tipo de Perfil</label>
+          <div class="grid grid-cols-2 gap-4">
+            <button 
+              type="button"
+              (click)="role = 'paciente'"
+              [class]="role === 'paciente' ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/10 ring-4 ring-primary-500/5' : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800'"
+              class="flex flex-col items-center p-6 rounded-3xl border-2 transition-all group"
+            >
+              <div class="h-12 w-12 rounded-2xl flex items-center justify-center mb-3 transition-colors" [class]="role === 'paciente' ? 'bg-primary-600 text-white' : 'bg-white dark:bg-slate-900 text-slate-400'">
+                <lucide-icon [name]="UserIcon" class="h-6 w-6"></lucide-icon>
+              </div>
+              <span class="text-sm font-black uppercase tracking-widest" [class]="role === 'paciente' ? 'text-primary-700 dark:text-primary-400' : 'text-slate-500 dark:text-slate-400'">Profesional</span>
+            </button>
+            <button 
+              type="button"
+              (click)="role = 'institucion'"
+              [class]="role === 'institucion' ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/10 ring-4 ring-primary-500/5' : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800'"
+              class="flex flex-col items-center p-6 rounded-3xl border-2 transition-all group"
+            >
+              <div class="h-12 w-12 rounded-2xl flex items-center justify-center mb-3 transition-colors" [class]="role === 'institucion' ? 'bg-primary-600 text-white' : 'bg-white dark:bg-slate-900 text-slate-400'">
+                <lucide-icon [name]="BuildingIcon" class="h-6 w-6"></lucide-icon>
+              </div>
+              <span class="text-sm font-black uppercase tracking-widest" [class]="role === 'institucion' ? 'text-primary-700 dark:text-primary-400' : 'text-slate-500 dark:text-slate-400'">Institución</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="group">
+              <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Nombre</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                  <lucide-icon [name]="UserIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+                </div>
+                <input type="text" name="nombre" required [(ngModel)]="nombre" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all dark:text-white font-medium" placeholder="Ej: Francisco">
+              </div>
+            </div>
+            <div class="group">
+              <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Apellido</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                  <lucide-icon [name]="UserIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+                </div>
+                <input type="text" name="apellido" required [(ngModel)]="apellido" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all dark:text-white font-medium" placeholder="Ej: Silva">
+              </div>
+            </div>
+          </div>
+
+          <div class="group">
+            <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Correo Corporativo</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                <lucide-icon [name]="MailIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+              </div>
+              <input type="email" name="email" required [(ngModel)]="email" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all dark:text-white font-medium" placeholder="clinica@ejemplo.cl">
+            </div>
+          </div>
+
+          <div class="group">
+            <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">RUT</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                <lucide-icon [name]="CreditCardIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+              </div>
+              <input 
+                type="text" 
+                name="rut" 
+                required 
+                [(ngModel)]="rut" 
+                (input)="validateRUTInput(); formatRUT()" 
+                [class]="rutError ? 'border-red-300 focus:ring-red-500/5 focus:border-red-500/30' : 'border-slate-200 dark:border-slate-800 focus:ring-primary-500/5 focus:border-primary-500/30'"
+                class="w-full bg-slate-50 dark:bg-slate-950 rounded-2xl py-4 pl-12 pr-4 text-sm outline-none transition-all dark:text-white font-medium" 
+                placeholder="12.345.678-9"
+              >
+            </div>
+            <p *ngIf="rutError" class="mt-2 text-xs text-red-500 font-bold">{{ rutError }}</p>
+          </div>
+
+          <!-- Campos adicionales para Institución -->
+          <div *ngIf="role === 'institucion'" class="space-y-8 pt-6 border-t border-slate-100 dark:border-slate-800/50">
+            <h3 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Datos de la Institución</h3>
+            
+            <div class="group">
+              <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Razón Social</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                  <lucide-icon [name]="BuildingIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+                </div>
+                <input type="text" name="razonSocial" [(ngModel)]="razonSocial" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all dark:text-white font-medium" placeholder="Nombre legal de la empresa">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="group">
+                <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">RUT Empresa</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                    <lucide-icon [name]="CreditCardIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+                  </div>
+                  <input type="text" name="empresaRut" [(ngModel)]="empresaRut" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all dark:text-white font-medium" placeholder="12.345.678-9">
+                </div>
+              </div>
+
+              <div class="group">
+                <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Representante Legal</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                    <lucide-icon [name]="UserIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+                  </div>
+                  <input type="text" name="representanteLegal" [(ngModel)]="representanteLegal" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all dark:text-white font-medium" placeholder="Nombre completo">
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Proveedores (separados por coma)</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                  <lucide-icon [name]="ActivityIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+                </div>
+                <input type="text" name="proveedores" [(ngModel)]="proveedores" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all dark:text-white font-medium" placeholder="Proveedor 1, Proveedor 2">
+              </div>
+            </div>
+
+            <div class="group">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" [(ngModel)]="timbre" class="w-5 h-5 rounded border-slate-300 text-primary-600 focus:ring-primary-500">
+                <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Requiere timbre</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="group">
+              <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Contraseña</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                  <lucide-icon [name]="LockIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+                </div>
+                <input 
+                  [type]="showPassword ? 'text' : 'password'" 
+                  name="password" 
+                  required 
+                  [(ngModel)]="password" 
+                  (input)="validatePasswordInput()" 
+                  class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-12 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all dark:text-white font-medium" 
+                  placeholder="••••••••••••"
+                >
+                <button 
+                  type="button"
+                  (click)="showPassword = !showPassword"
+                  class="absolute inset-y-0 right-0 pr-5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                >
+                  <lucide-icon [name]="showPassword ? 'EyeOff' : 'Eye'" class="h-5 w-5"></lucide-icon>
+                </button>
+              </div>
+              <!-- Lista de requisitos de contraseña -->
+              <div class="mt-3 space-y-1.5">
+                <div class="flex items-center gap-2 text-xs" [class.text-green-600]="hasMinLength" [class.text-slate-400]="!hasMinLength">
+                  <div class="w-1.5 h-1.5 rounded-full" [class.bg-green-500]="hasMinLength" [class.bg-slate-300]="!hasMinLength"></div>
+                  <span>Mínimo 8 caracteres</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs" [class.text-green-600]="hasLowercase" [class.text-slate-400]="!hasLowercase">
+                  <div class="w-1.5 h-1.5 rounded-full" [class.bg-green-500]="hasLowercase" [class.bg-slate-300]="!hasLowercase"></div>
+                  <span>Al menos una letra minúscula</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs" [class.text-green-600]="hasUppercase" [class.text-slate-400]="!hasUppercase">
+                  <div class="w-1.5 h-1.5 rounded-full" [class.bg-green-500]="hasUppercase" [class.bg-slate-300]="!hasUppercase"></div>
+                  <span>Al menos una letra mayúscula</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs" [class.text-green-600]="hasNumber" [class.text-slate-400]="!hasNumber">
+                  <div class="w-1.5 h-1.5 rounded-full" [class.bg-green-500]="hasNumber" [class.bg-slate-300]="!hasNumber"></div>
+                  <span>Al menos un número</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs" [class.text-green-600]="hasSpecialChar" [class.text-slate-400]="!hasSpecialChar">
+                  <div class="w-1.5 h-1.5 rounded-full" [class.bg-green-500]="hasSpecialChar" [class.bg-slate-300]="!hasSpecialChar"></div>
+                  <span>Al menos un carácter especial</span>
+                </div>
+              </div>
+            </div>
+            <div class="group">
+              <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Confirmar</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                  <lucide-icon [name]="LockIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+                </div>
+                <input type="password" name="confirmPassword" required [(ngModel)]="confirmPassword" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all dark:text-white font-medium" placeholder="••••••••••••">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipping Data -->
+        <div class="space-y-8 pt-6 border-t border-slate-100 dark:border-slate-800/50">
+          <h3 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Logística de Despacho</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="group">
+              <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Región</label>
+              <select name="region" required [(ngModel)]="region" (change)="onRegionChange()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 px-5 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all dark:text-white font-bold appearance-none cursor-pointer">
+                <option value="">Seleccione Región</option>
+                <option *ngFor="let r of regionesChile" [value]="r">{{ r }}</option>
+              </select>
+            </div>
+            <div class="group">
+              <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Comuna</label>
+              <select name="comuna" required [(ngModel)]="comuna" [disabled]="!region" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 px-5 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all dark:text-white font-bold appearance-none cursor-pointer disabled:opacity-30">
+                <option value="">Seleccione Comuna</option>
+                <option *ngFor="let c of comunasDisponibles" [value]="c">{{ c }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="group">
+            <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Dirección Completa</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                <lucide-icon [name]="MapPinIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+              </div>
+              <input type="text" name="direccion" required [(ngModel)]="direccion" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all dark:text-white font-medium" placeholder="Calle, Número, Depto/Oficina">
+            </div>
+          </div>
+
+          <div class="group">
+            <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Teléfono de Contacto</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                <lucide-icon [name]="PhoneIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+              </div>
+              <input type="tel" name="telefono" required [(ngModel)]="telefono" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all dark:text-white font-medium" placeholder="+56 9 1234 5678">
+            </div>
+          </div>
+        </div>
+
+        <button 
+          type="submit" 
+          [disabled]="isLoading"
+          class="btn-primary w-full py-5 text-lg shadow-2xl shadow-primary-600/20 group"
+        >
+          <span *ngIf="!isLoading" class="flex items-center justify-center gap-3">
+            Completar Registro
+            <lucide-icon [name]="UserPlusIcon" class="h-5 w-5 group-hover:scale-110 transition-transform"></lucide-icon>
+          </span>
+          <div *ngIf="isLoading" class="flex items-center justify-center">
+            <div class="h-6 w-6 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+          </div>
+        </button>
+      </form>
+    </div>
+
+    <p class="mt-10 text-center text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest">
+      Al registrarse acepta nuestros <a href="#" class="text-primary-600 hover:underline">Términos de Servicio</a> <br> y <a href="#" class="text-primary-600 hover:underline">Políticas de Privacidad</a>.
+    </p>
+  </div>
+</div>

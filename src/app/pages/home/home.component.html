@@ -1,0 +1,212 @@
+<div class="relative overflow-hidden bg-[#F8FAFC] dark:bg-slate-950 transition-colors duration-500">
+  
+  <!-- Decorative Elements -->
+  <div class="absolute top-0 left-0 w-full h-[800px] overflow-hidden pointer-events-none z-0">
+    <div class="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-primary-100/40 dark:bg-primary-900/10 rounded-full blur-[120px] animate-pulse-subtle"></div>
+    <div class="absolute top-[10%] -right-[10%] w-[50%] h-[50%] bg-medical-blue/5 dark:bg-medical-blue/10 rounded-full blur-[120px] animate-pulse-subtle" style="animation-delay: 2s"></div>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="relative pt-32 pb-40 overflow-hidden z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div class="flex flex-col lg:flex-row items-center gap-16">
+        
+        <!-- Hero Text -->
+        <div class="flex-1 text-center lg:text-left">
+          <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-2xl bg-white dark:bg-slate-900 shadow-premium border border-slate-100 dark:border-slate-800 mb-8 animate-fade-in">
+            <span class="flex h-2 w-2 rounded-full bg-primary-600 animate-pulse"></span>
+            <span class="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-[0.2em]">Suministros Médicos de Elite</span>
+          </div>
+          
+          <h1 class="text-6xl md:text-8xl font-black text-slate-900 dark:text-white tracking-tighter mb-8 leading-[0.9] animate-slide-up">
+            Equipamiento <br>
+            <span class="text-primary-600">Profesional</span> para <br>
+            Cuidado Crítico
+          </h1>
+          
+          <p class="text-xl text-slate-500 dark:text-slate-400 mb-12 leading-relaxed max-w-2xl mx-auto lg:mx-0 font-medium animate-slide-up" style="animation-delay: 150ms">
+            Abastecemos a las principales instituciones de salud con tecnología médica de vanguardia y logística inteligente 24/7.
+          </p>
+          
+          <div class="flex flex-col sm:flex-row items-center gap-5 animate-slide-up" style="animation-delay: 300ms">
+            <a routerLink="/productos" class="btn-primary py-5 px-10 text-lg group w-full sm:w-auto shadow-2xl shadow-primary-600/20">
+              Explorar Catálogo
+              <lucide-icon [name]="ArrowRightIcon" class="ml-3 h-6 w-6 group-hover:translate-x-2 transition-transform duration-300"></lucide-icon>
+            </a>
+            <a routerLink="/tracking" class="btn-secondary py-5 px-10 text-lg w-full sm:w-auto group">
+              <lucide-icon [name]="TruckIcon" class="mr-3 h-6 w-6 text-primary-600 group-hover:rotate-12 transition-transform"></lucide-icon>
+              Seguir Pedido
+            </a>
+          </div>
+
+          <!-- Trust Indicators -->
+          <div class="mt-16 flex items-center justify-center lg:justify-start gap-8 animate-fade-in" style="animation-delay: 500ms">
+            <div class="flex flex-col">
+              <span class="text-3xl font-black text-slate-900 dark:text-white">15k+</span>
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Productos</span>
+            </div>
+            <div class="h-8 w-px bg-slate-200 dark:bg-slate-800"></div>
+            <div class="flex flex-col">
+              <span class="text-3xl font-black text-slate-900 dark:text-white">500+</span>
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Hospitales</span>
+            </div>
+            <div class="h-8 w-px bg-slate-200 dark:bg-slate-800"></div>
+            <div class="flex flex-col">
+              <span class="text-3xl font-black text-slate-900 dark:text-white">24h</span>
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Entrega</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Image/Visual -->
+        <div class="flex-1 relative hidden lg:block animate-fade-in" style="animation-delay: 300ms">
+          <div class="relative z-10 rounded-5xl overflow-hidden shadow-2xl border-8 border-white dark:border-slate-900">
+            <img src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=1000" alt="Medical Technology" class="w-full h-auto object-cover hover:scale-105 transition-transform duration-1000">
+          </div>
+          <!-- Floating UI Elements -->
+          <div class="absolute -top-10 -right-10 glass p-6 rounded-3xl shadow-2xl animate-float z-20 max-w-[200px]">
+            <div class="flex items-center gap-4 mb-3">
+              <div class="h-10 w-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center">
+                <lucide-icon [name]="ShieldCheckIcon" class="h-6 w-6"></lucide-icon>
+              </div>
+              <span class="text-sm font-black text-slate-900 dark:text-white">Certificado ISO</span>
+            </div>
+            <p class="text-[10px] text-slate-500 font-bold leading-tight uppercase tracking-wider">Cumplimos estándares globales</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Products -->
+  <section class="py-32 relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
+        <div class="max-w-2xl">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 mb-4 font-bold text-xs uppercase tracking-widest">
+            Selección Premium
+          </div>
+          <h2 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter">Productos Destacados</h2>
+          <p class="text-slate-500 dark:text-slate-400 mt-4 text-lg font-medium">Equipamiento de alta rotación seleccionado para las demandas actuales del sector.</p>
+        </div>
+        <a routerLink="/productos" class="group flex items-center px-6 py-3 rounded-2xl bg-white dark:bg-slate-900 shadow-premium hover:shadow-premium-hover text-slate-900 dark:text-white font-black transition-all border border-slate-100 dark:border-slate-800">
+          Ver Todo el Catálogo
+          <lucide-icon [name]="ArrowRightIcon" class="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform"></lucide-icon>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div *ngFor="let product of (featuredProducts$ | async); let i = index" 
+             class="group card animate-slide-up" 
+             [style.animation-delay]="(i * 100) + 'ms'">
+          <div class="relative aspect-square overflow-hidden bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800">
+            <img [src]="product.imagen" [alt]="product.nombre" class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700">
+            <div class="absolute top-4 right-4 flex flex-col gap-2">
+              <button class="h-10 w-10 rounded-xl glass flex items-center justify-center text-slate-600 dark:text-white hover:bg-primary-600 hover:text-white transition-all shadow-lg opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300">
+                <lucide-icon [name]="ActivityIcon" class="h-5 w-5"></lucide-icon>
+              </button>
+            </div>
+            <div *ngIf="product.precioOferta" class="absolute bottom-4 left-4 bg-primary-600 text-white text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-lg">
+              Oferta Especial
+            </div>
+          </div>
+          <div class="p-8">
+            <p class="text-[10px] font-black text-primary-600 uppercase tracking-[0.2em] mb-3">{{product.categoria}}</p>
+            <h3 class="text-xl font-black text-slate-900 dark:text-white line-clamp-1 mb-6 group-hover:text-primary-600 transition-colors">{{product.nombre}}</h3>
+            
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-2xl font-black text-slate-900 dark:text-white">
+                  ${{(product.precioOferta || product.precio) | number}}
+                </p>
+                <p *ngIf="product.precioOferta" class="text-sm font-bold text-slate-400 line-through">
+                  ${{product.precio | number}}
+                </p>
+              </div>
+              <button 
+                (click)="addToCart(product)"
+                class="h-14 w-14 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center hover:bg-primary-600 dark:hover:bg-primary-500 hover:text-white transition-all duration-300 shadow-xl active:scale-95 group/btn"
+              >
+                <lucide-icon [name]="ShoppingCartIcon" class="h-6 w-6 group-hover/btn:scale-110 transition-transform"></lucide-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="py-32 bg-white dark:bg-slate-900 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="p-10 rounded-4xl bg-[#F8FAFC] dark:bg-slate-950 border border-slate-100 dark:border-slate-800 hover:border-primary-500/30 transition-all duration-500 group">
+          <div class="h-16 w-16 rounded-3xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 shadow-lg shadow-blue-500/10">
+            <lucide-icon [name]="ShieldCheckIcon" class="h-8 w-8"></lucide-icon>
+          </div>
+          <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-4">Garantía Clínica</h3>
+          <p class="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">Productos certificados bajo normativas internacionales para máxima seguridad del paciente.</p>
+        </div>
+
+        <div class="p-10 rounded-4xl bg-[#F8FAFC] dark:bg-slate-950 border border-slate-100 dark:border-slate-800 hover:border-primary-500/30 transition-all duration-500 group">
+          <div class="h-16 w-16 rounded-3xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 shadow-lg shadow-emerald-500/10">
+            <lucide-icon [name]="TruckIcon" class="h-8 w-8"></lucide-icon>
+          </div>
+          <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-4">Logística Inteligente</h3>
+          <p class="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">Sistema de seguimiento en tiempo real y entregas prioritarias en menos de 24 horas.</p>
+        </div>
+
+        <div class="p-10 rounded-4xl bg-[#F8FAFC] dark:bg-slate-950 border border-slate-100 dark:border-slate-800 hover:border-primary-500/30 transition-all duration-500 group">
+          <div class="h-16 w-16 rounded-3xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 shadow-lg shadow-amber-500/10">
+            <lucide-icon [name]="ClockIcon" class="h-8 w-8"></lucide-icon>
+          </div>
+          <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-4">Soporte Especializado</h3>
+          <p class="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">Asesoría técnica constante por expertos en biomédica para cada una de sus compras.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-32 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="relative rounded-5xl bg-slate-900 dark:bg-primary-900/20 overflow-hidden p-12 md:p-24 text-center">
+        <!-- Background Effects -->
+        <div class="absolute top-0 left-0 w-full h-full opacity-30">
+          <div class="absolute top-[-50%] left-[-20%] w-[80%] h-[150%] bg-primary-600 rounded-full blur-[120px]"></div>
+          <div class="absolute bottom-[-50%] right-[-20%] w-[60%] h-[120%] bg-medical-blue rounded-full blur-[120px]"></div>
+        </div>
+        
+        <div class="relative z-10 max-w-3xl mx-auto">
+          <h2 class="text-4xl md:text-6xl font-black text-white tracking-tighter mb-8 leading-tight">
+            ¿Listo para modernizar su <br> abastecimiento médico?
+          </h2>
+          <p class="text-xl text-primary-100/70 mb-12 font-medium leading-relaxed">
+            Únase a más de 500 instituciones que ya confían en MEDISTOCK para su gestión diaria de insumos.
+          </p>
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+            <a routerLink="/register" class="btn-primary py-5 px-12 text-lg bg-white text-slate-900 hover:bg-slate-100 border-none shadow-2xl">
+              Crear Cuenta Profesional
+            </a>
+            <a routerLink="/contacto" class="px-10 py-5 text-lg font-black text-white hover:text-primary-200 transition-colors">
+              Hablar con un Experto
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Toast Notification -->
+  <div *ngIf="toastMessage" 
+       class="fixed bottom-10 right-10 z-[100] glass px-8 py-5 rounded-3xl shadow-2xl flex items-center gap-4 animate-slide-right">
+    <div class="h-12 w-12 rounded-2xl bg-primary-600 text-white flex items-center justify-center shadow-lg shadow-primary-600/30">
+      <lucide-icon [name]="ShoppingCartIcon" class="h-6 w-6"></lucide-icon>
+    </div>
+    <div class="flex flex-col">
+      <span class="text-xs font-black text-primary-600 uppercase tracking-widest mb-1">Carrito Actualizado</span>
+      <span class="font-bold text-slate-900 dark:text-white">{{toastMessage}}</span>
+    </div>
+  </div>
+
+</div>

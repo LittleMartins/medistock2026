@@ -1,0 +1,258 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
+        <span *ngIf="currentView === 'admin'">Gestión de Pedidos Global</span>
+        <span *ngIf="currentView === 'logistica'">Operaciones Logísticas</span>
+        <span *ngIf="currentView === 'analista'">Auditoría Financiera</span>
+        <span *ngIf="currentView === 'ejecutivo'">Aprobación de Órdenes</span>
+      </h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+        <span *ngIf="currentView === 'logistica'">Priorizando pedidos con urgencia médica (Express)</span>
+        <span *ngIf="currentView === 'analista'">Validación de comprobantes de transferencia</span>
+        <span *ngIf="currentView === 'ejecutivo'">Revisión de compras institucionales y stock</span>
+      </p>
+    </div>
+    <button (click)="exportToExcel()" class="btn-primary flex items-center gap-2">
+      <lucide-icon [name]="DownloadIcon" class="h-4 w-4"></lucide-icon>
+      <span>Exportar a Excel</span>
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row gap-4">
+    <div class="relative w-full md:w-1/2 lg:w-1/3">
+      <lucide-icon [name]="SearchIcon" class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400"></lucide-icon>
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (ngModelChange)="applyFilters()"
+        placeholder="Buscar por ID, Email o Ciudad..." 
+        class="input-field pl-10"
+      >
+    </div>
+    <div class="flex items-center gap-2" *ngIf="currentView === 'admin'">
+      <lucide-icon [name]="FilterIcon" class="h-5 w-5 text-slate-400"></lucide-icon>
+      <select 
+        [(ngModel)]="statusFilter" 
+        (ngModelChange)="applyFilters()"
+        class="input-field min-w-[150px]"
+      >
+        <option *ngFor="let opt of statusOptions" [value]="opt.value">{{opt.label}}</option>
+      </select>
+    </div>
+    
+    <!-- Stats Brief for Specific Views -->
+    <div class="flex items-center gap-4 ml-auto" *ngIf="currentView !== 'admin'">
+      <div class="flex items-center gap-2 px-3 py-1 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 rounded-lg text-xs font-bold uppercase tracking-wider">
+        <lucide-icon [name]="CheckCircleIcon" class="h-4 w-4"></lucide-icon>
+        <span>Pendientes: {{filteredOrders.length}}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm whitespace-nowrap">
+        <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase">
+          <tr>
+            <th class="px-6 py-4 font-semibold">Prioridad / ID</th>
+            <th class="px-6 py-4 font-semibold">Cliente / Email</th>
+            <th class="px-6 py-4 font-semibold">Estado</th>
+            <th class="px-6 py-4 font-semibold">Tipo Despacho</th>
+            <th class="px-6 py-4 font-semibold text-right">Total</th>
+            <th class="px-6 py-4 font-semibold text-center">Acciones Rápidas</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:border-slate-800">
+          <tr *ngIf="isLoading">
+            <td colspan="6" class="px-6 py-8 text-center text-slate-500">Cargando pedidos...</td>
+          </tr>
+          <tr *ngIf="!isLoading && filteredOrders.length === 0">
+            <td colspan="6" class="px-6 py-8 text-center text-slate-500">No se encontraron pedidos en esta categoría.</td>
+          </tr>
+          <tr *ngFor="let order of filteredOrders" class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div *ngIf="order.tipoDespacho === 'express'" class="h-2 w-2 rounded-full bg-red-500 animate-pulse" title="Urgencia Médica"></div>
+                <div *ngIf="order.tipoDespacho !== 'express'" class="h-2 w-2 rounded-full bg-slate-300"></div>
+                <span class="font-mono text-slate-900 dark:text-white">{{order.id | slice:0:8}}</span>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex flex-col">
+                <span class="font-bold text-slate-900 dark:text-white">{{order.direccionEnvio.nombre}} {{order.direccionEnvio.apellido}}</span>
+                <span class="text-xs text-slate-500">{{order.userEmail}}</span>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <span class="px-2.5 py-1 text-xs font-medium rounded-full"
+                [ngClass]="{
+                  'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': order.estado === 'pendiente',
+                  'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400': order.estado === 'pagado',
+                  'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400': order.estado === 'preparando',
+                  'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400': order.estado === 'enviado',
+                  'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': order.estado === 'entregado',
+                  'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': order.estado === 'cancelado'
+                }">
+                {{order.estado | titlecase}}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-2">
+                <lucide-icon [name]="order.tipoDespacho === 'express' ? AlertCircleIcon : TruckIcon" 
+                            [class]="order.tipoDespacho === 'express' ? 'text-red-500' : 'text-slate-400'" class="h-4 w-4"></lucide-icon>
+                <span [class.text-red-600]="order.tipoDespacho === 'express'" [class.font-bold]="order.tipoDespacho === 'express'" class="dark:text-white">
+                  {{order.tipoDespacho | titlecase}}
+                </span>
+              </div>
+            </td>
+            <td class="px-6 py-4 font-medium text-slate-900 dark:text-white text-right">${{order.total | number:'1.2-2'}}</td>
+            <td class="px-6 py-4">
+              <div class="flex items-center justify-center gap-2">
+                <!-- Vista General -->
+                <button (click)="openOrderDetails(order)" class="p-2 text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Ver Detalles">
+                  <lucide-icon [name]="EyeIcon" class="h-4 w-4"></lucide-icon>
+                </button>
+
+                <!-- Acciones Ejecutivo / Analista (Aprobar Pago) -->
+                <button *ngIf="(currentView === 'analista' || currentView === 'ejecutivo') && order.estado === 'pendiente'" 
+                        (click)="approveOrder(order)" 
+                        class="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors" title="Confirmar y Aprobar">
+                  <lucide-icon [name]="ShieldCheckIcon" class="h-4 w-4"></lucide-icon>
+                </button>
+
+                <!-- Acciones Logística (Preparar) -->
+                <button *ngIf="currentView === 'logistica' && order.estado === 'pagado'" 
+                        (click)="setPreparing(order)" 
+                        class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors" title="Empezar Preparación">
+                  <lucide-icon [name]="PackageIcon" class="h-4 w-4"></lucide-icon>
+                </button>
+
+                <!-- Acciones Logística (Despachar) -->
+                <button *ngIf="currentView === 'logistica' && order.estado === 'preparando'" 
+                        (click)="setDispatched(order)" 
+                        class="p-2 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors" title="Despachar a Ruta">
+                  <lucide-icon [name]="TruckIcon" class="h-4 w-4"></lucide-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Detail/Edit Modal -->
+  <div *ngIf="showModal && selectedOrder" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity" aria-hidden="true" (click)="closeModal()"></div>
+
+      <div class="inline-block align-bottom bg-white dark:bg-slate-900 rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+          <h3 class="text-lg leading-6 font-bold text-slate-900 dark:text-white" id="modal-title">
+            Detalle del Pedido <span class="font-mono text-sm ml-2 text-slate-500">{{selectedOrder.id}}</span>
+          </h3>
+          <button (click)="closeModal()" class="text-slate-400 hover:text-slate-500">
+            <lucide-icon [name]="XIcon" class="h-5 w-5"></lucide-icon>
+          </button>
+        </div>
+        
+        <div class="px-6 py-4 space-y-6">
+          
+          <!-- Estado Actualización -->
+          <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg flex items-center justify-between border border-slate-200 dark:border-slate-700">
+            <div>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Estado Actual</p>
+              <p class="text-lg font-bold"
+                [ngClass]="{
+                  'text-yellow-600 dark:text-yellow-400': selectedOrder.estado === 'pendiente',
+                  'text-indigo-600 dark:text-indigo-400': selectedOrder.estado === 'pagado',
+                  'text-blue-600 dark:text-blue-400': selectedOrder.estado === 'preparando',
+                  'text-purple-600 dark:text-purple-400': selectedOrder.estado === 'enviado',
+                  'text-green-600 dark:text-green-400': selectedOrder.estado === 'entregado',
+                  'text-red-600 dark:text-red-400': selectedOrder.estado === 'cancelado'
+                }">
+                {{selectedOrder.estado | titlecase}}
+              </p>
+            </div>
+            <div class="flex items-center gap-3">
+              <select [(ngModel)]="newStatus" class="input-field py-1.5 text-sm w-40">
+                <option value="pendiente">Pendiente</option>
+                <option value="pagado">Pagado</option>
+                <option value="preparando">Preparando</option>
+                <option value="enviado">Enviado</option>
+                <option value="entregado">Entregado</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+              <button (click)="updateStatus()" [disabled]="newStatus === selectedOrder.estado" class="btn-primary py-1.5 px-3 text-sm disabled:opacity-50">
+                Actualizar
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Info Cliente / Envío -->
+            <div>
+              <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-3 uppercase tracking-wide">Datos de Envío</h4>
+              <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+                <p><span class="font-medium text-slate-500 dark:text-slate-400">Nombre:</span> {{selectedOrder.direccionEnvio.nombre}} {{selectedOrder.direccionEnvio.apellido}}</p>
+                <p><span class="font-medium text-slate-500 dark:text-slate-400">Teléfono:</span> {{selectedOrder.direccionEnvio.telefono}}</p>
+                <p><span class="font-medium text-slate-500 dark:text-slate-400">Dirección:</span> {{selectedOrder.direccionEnvio.direccion}} {{selectedOrder.direccionEnvio.numeroDepto ? '- ' + selectedOrder.direccionEnvio.numeroDepto : ''}}</p>
+                <p><span class="font-medium text-slate-500 dark:text-slate-400">Ubicación:</span> {{selectedOrder.direccionEnvio.comuna}}, {{selectedOrder.direccionEnvio.region}}</p>
+                <p *ngIf="selectedOrder.direccionEnvio.codigoPostal"><span class="font-medium text-slate-500 dark:text-slate-400">C.P.:</span> {{selectedOrder.direccionEnvio.codigoPostal}}</p>
+                <p *ngIf="selectedOrder.direccionEnvio.referencias" class="mt-2 text-xs italic"><span class="font-medium text-slate-500 dark:text-slate-400 not-italic">Referencias:</span> {{selectedOrder.direccionEnvio.referencias}}</p>
+              </div>
+            </div>
+
+            <!-- Resumen Pago -->
+            <div>
+              <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-3 uppercase tracking-wide">Resumen de Pago</h4>
+              <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+                <p><span class="font-medium text-slate-500 dark:text-slate-400">Fecha:</span> {{selectedOrder.fecha | date:'medium'}}</p>
+                <p><span class="font-medium text-slate-500 dark:text-slate-400">Método:</span> <span class="uppercase">{{selectedOrder.metodoPago}}</span></p>
+                <div class="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between font-bold text-slate-900 dark:text-white">
+                  <span>Total:</span>
+                  <span class="text-primary-600 dark:text-primary-400">${{selectedOrder.total | number:'1.2-2'}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Items -->
+          <div>
+            <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-3 uppercase tracking-wide">Productos ({{selectedOrder.items.length}})</h4>
+            <div class="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400">
+                  <tr>
+                    <th class="px-4 py-2 font-medium">Producto</th>
+                    <th class="px-4 py-2 font-medium text-center">Cant.</th>
+                    <th class="px-4 py-2 font-medium text-right">Precio</th>
+                    <th class="px-4 py-2 font-medium text-right">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300">
+                  <tr *ngFor="let item of selectedOrder.items" class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td class="px-4 py-3">{{item.nombre}}</td>
+                    <td class="px-4 py-3 text-center">{{item.cantidad}}</td>
+                    <td class="px-4 py-3 text-right">${{item.precio | number:'1.2-2'}}</td>
+                    <td class="px-4 py-3 text-right font-black text-slate-900 dark:text-white">${{(item.precio * item.cantidad) | number:'1.2-2'}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 flex justify-end border-t border-slate-200 dark:border-slate-800">
+          <button type="button" (click)="closeModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Solo usuarios autenticados pueden subir archivos (ej. comprobantes)
+    // Todos pueden ver imágenes de productos
+    
+    function isAdmin() {
+      // Storage no tiene acceso directo a Firestore rules fácilmente en la versión gratuita básica,
+      // pero para fines de este proyecto universitario permitiremos lectura pública a productos
+      // y subida solo a admins para productos, y usuarios para sus propios perfiles o pedidos.
+      return request.auth != null; // Simplificado: Solo usuarios autenticados pueden subir
+    }
+
+    match /productos/{imageId} {
+      allow read: if true;
+      allow write: if request.auth != null; // Idealmente sería isAdmin(), aquí simplificamos a auth
+    }
+    
+    match /comprobantes/{userId}/{fileName} {
+      allow read: if request.auth != null && (request.auth.uid == userId);
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

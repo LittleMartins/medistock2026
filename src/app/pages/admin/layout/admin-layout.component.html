@@ -1,0 +1,84 @@
+<div class="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-950 flex flex-col md:flex-row transition-colors duration-300">
+  
+  <!-- Sidebar -->
+  <aside class="w-full md:w-72 bg-white/90 dark:bg-slate-950/70 backdrop-blur border-r border-slate-200/70 dark:border-slate-800/70 flex-shrink-0 flex flex-col">
+    <div class="h-16 flex items-center px-6 border-b border-slate-200/70 dark:border-slate-800/70">
+      <span class="text-lg font-black text-slate-900 dark:text-white tracking-tight">
+        MEDI<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-medical-teal">STOCK</span>
+        <span class="text-xs text-slate-400 font-semibold ml-2">ADMIN</span>
+      </span>
+    </div>
+
+    <nav class="flex-1 p-4 space-y-1 overflow-y-auto" *ngIf="(authService.userData$ | async) as user">
+      <!-- Dashboard (Admin, Analista, Ejecutivo) -->
+      <a *ngIf="['admin', 'analista', 'ejecutivo'].includes(user.role)" routerLink="/admin/dashboard" routerLinkActive="bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+        <lucide-icon [name]="LayoutDashboardIcon" class="mr-3 h-5 w-5"></lucide-icon>
+        Dashboard Global
+      </a>
+      
+      <!-- Productos (Admin, Ejecutivo) -->
+      <a *ngIf="['admin', 'ejecutivo'].includes(user.role)" routerLink="/admin/productos" routerLinkActive="bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+        <lucide-icon [name]="PackageIcon" class="mr-3 h-5 w-5"></lucide-icon>
+        Catálogo y Bodegas
+      </a>
+
+      <!-- Pedidos (Admin, Ejecutivo, Analista) -->
+      <a *ngIf="['admin', 'ejecutivo', 'analista'].includes(user.role)" routerLink="/admin/pedidos" routerLinkActive="bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+        <lucide-icon [name]="ShoppingCartIcon" class="mr-3 h-5 w-5"></lucide-icon>
+        Aprobación de Órdenes
+      </a>
+
+      <!-- Operaciones Logísticas (Admin, Logistica) -->
+      <a *ngIf="['admin', 'logistica'].includes(user.role)" routerLink="/admin/pedidos" [queryParams]="{view: 'logistica'}" routerLinkActive="bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+        <lucide-icon [name]="TruckIcon" class="mr-3 h-5 w-5"></lucide-icon>
+        Operador Logístico
+      </a>
+
+      <!-- Auditoría de Pagos (Admin, Analista) -->
+      <a *ngIf="['admin', 'analista'].includes(user.role)" routerLink="/admin/pedidos" [queryParams]="{view: 'analista'}" routerLinkActive="bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+        <lucide-icon [name]="LandmarkIcon" class="mr-3 h-5 w-5"></lucide-icon>
+        Auditoría de Pagos
+      </a>
+
+      <a *ngIf="user.role === 'admin'" routerLink="/admin/inventario" routerLinkActive="bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300" class="flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+        <div class="flex items-center">
+          <lucide-icon [name]="ActivityIcon" class="mr-3 h-5 w-5"></lucide-icon>
+          Control de Stock
+        </div>
+        <span *ngIf="lowStockCount > 0" class="bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 py-0.5 px-2 rounded-full text-xs font-bold">
+          {{ lowStockCount }}
+        </span>
+      </a>
+
+      <a *ngIf="user.role === 'admin'" routerLink="/admin/usuarios" routerLinkActive="bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+        <lucide-icon [name]="UsersIcon" class="mr-3 h-5 w-5"></lucide-icon>
+        Gestión de Roles
+      </a>
+
+      <a *ngIf="user.role === 'admin'" routerLink="/admin/historial" routerLinkActive="bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+        <lucide-icon [name]="ClockIcon" class="mr-3 h-5 w-5"></lucide-icon>
+        Historial de Cambios
+      </a>
+      
+      <a *ngIf="user.role === 'admin'" routerLink="/admin/configuracion" routerLinkActive="bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+        <lucide-icon [name]="SettingsIcon" class="mr-3 h-5 w-5"></lucide-icon>
+        Sistema
+      </a>
+    </nav>
+
+    <div class="p-4 border-t border-slate-200/70 dark:border-slate-800/70">
+      <a routerLink="/" class="flex items-center px-3 py-2.5 text-sm font-semibold rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+        <lucide-icon [name]="LogOutIcon" class="mr-3 h-5 w-5"></lucide-icon>
+        Volver a la tienda
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex-1 overflow-y-auto p-4 sm:p-8">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+</div>

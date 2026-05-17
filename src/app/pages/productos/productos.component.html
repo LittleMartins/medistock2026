@@ -1,0 +1,136 @@
+<div class="py-20 bg-[#F8FAFC] dark:bg-slate-950 min-h-screen transition-colors duration-500">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Header Section -->
+    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10 mb-16 animate-fade-in">
+      <div class="max-w-2xl">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 mb-4 font-bold text-xs uppercase tracking-widest">
+          Catálogo Especializado
+        </div>
+        <h1 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter">Inventario Médico</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-4 text-lg font-medium leading-relaxed">Acceda a nuestra selección curada de dispositivos y suministros clínicos con certificación internacional.</p>
+      </div>
+      
+      <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+        <div class="relative group flex-1 sm:min-w-[320px]">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <lucide-icon [name]="SearchIcon" class="h-5 w-5 text-slate-400 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+          </div>
+          <input 
+            type="text" 
+            [(ngModel)]="searchTerm" 
+            (input)="applyFilters()"
+            placeholder="Buscar por nombre, código o categoría..." 
+            class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all shadow-premium"
+          >
+        </div>
+        
+        <div class="relative group min-w-[220px]">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <lucide-icon [name]="FilterIcon" class="h-5 w-5 text-slate-400 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+          </div>
+          <select 
+            [(ngModel)]="selectedCategory" 
+            (change)="applyFilters()"
+            class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-10 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all shadow-premium appearance-none cursor-pointer font-bold text-slate-700 dark:text-slate-200"
+          >
+            <option value="todos">Todas las Categorías</option>
+            <option *ngFor="let cat of categories" [value]="cat">{{cat}}</option>
+          </select>
+          <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+            <lucide-icon [name]="ChevronDownIcon" class="h-4 w-4 text-slate-400"></lucide-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Grid -->
+    <div *ngIf="filteredProducts.length > 0; else noProducts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div *ngFor="let product of filteredProducts; let i = index" 
+           class="group card animate-slide-up" 
+           [style.animation-delay]="(i * 50) + 'ms'">
+        
+        <div class="relative aspect-square overflow-hidden bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800">
+          <img [src]="product.imagen || 'https://placehold.co/400'" [alt]="product.nombre" class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700">
+          
+          <!-- Badges -->
+          <div class="absolute top-4 left-4 flex flex-col gap-2">
+            <div *ngIf="product.precioOferta" class="bg-primary-600 text-white text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-lg">
+              Oferta
+            </div>
+            <div *ngIf="product.stock < 10 && product.stock > 0" class="bg-amber-500 text-white text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-lg">
+              Stock Crítico
+            </div>
+          </div>
+
+          <div *ngIf="product.stock === 0" class="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center">
+            <span class="bg-white text-slate-900 text-xs font-black px-6 py-3 rounded-2xl uppercase tracking-[0.2em] shadow-2xl">Agotado Temporalmente</span>
+          </div>
+          
+          <button [routerLink]="['/producto', product.id]" class="absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-primary-600/5 flex items-center justify-center">
+            <span class="bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl translate-y-4 group-hover:translate-y-0 transition-transform duration-500">Ver Detalles</span>
+          </button>
+        </div>
+
+        <div class="p-8">
+          <div class="flex justify-between items-start mb-4">
+            <p class="text-[10px] font-black text-primary-600 uppercase tracking-[0.2em]">{{product.categoria}}</p>
+            <div class="flex items-center gap-1.5">
+              <span class="h-1.5 w-1.5 rounded-full" [class.bg-emerald-500]="product.stock > 10" [class.bg-amber-500]="product.stock <= 10 && product.stock > 0" [class.bg-red-500]="product.stock === 0"></span>
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{product.stock}} disponibles</span>
+            </div>
+          </div>
+          
+          <h3 class="text-xl font-black text-slate-900 dark:text-white line-clamp-2 mb-6 h-14 group-hover:text-primary-600 transition-colors">
+            {{product.nombre}}
+          </h3>
+          
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-2xl font-black text-slate-900 dark:text-white">
+                ${{(product.precioOferta || product.precio) | number}}
+              </p>
+              <p *ngIf="product.precioOferta" class="text-sm font-bold text-slate-400 line-through">
+                ${{product.precio | number}}
+              </p>
+            </div>
+            <button 
+              (click)="addToCart(product)"
+              [disabled]="product.stock === 0"
+              class="h-14 w-14 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center hover:bg-primary-600 dark:hover:bg-primary-500 hover:text-white transition-all duration-300 shadow-xl active:scale-95 disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed group/btn"
+            >
+              <lucide-icon [name]="ShoppingCartIcon" class="h-6 w-6 group-hover/btn:scale-110 transition-transform"></lucide-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <ng-template #noProducts>
+      <div class="text-center py-40 animate-fade-in card bg-white dark:bg-slate-900 max-w-2xl mx-auto border-dashed border-2 border-slate-200 dark:border-slate-800">
+        <div class="h-24 w-24 bg-primary-50 dark:bg-primary-900/20 rounded-3xl flex items-center justify-center mx-auto mb-8 text-primary-600">
+          <lucide-icon [name]="SearchIcon" class="h-12 w-12"></lucide-icon>
+        </div>
+        <h3 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Sin coincidencias</h3>
+        <p class="text-slate-500 dark:text-slate-400 mt-4 text-lg font-medium px-10">No hemos podido encontrar productos que coincidan con su búsqueda o filtros actuales.</p>
+        <button (click)="searchTerm=''; selectedCategory='todos'; applyFilters()" class="btn-primary mt-10 px-10 py-4">
+          Restablecer Catálogo
+        </button>
+      </div>
+    </ng-template>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div *ngIf="toastMessage" 
+       class="fixed bottom-10 right-10 z-[100] glass px-8 py-5 rounded-3xl shadow-2xl flex items-center gap-4 animate-slide-right">
+    <div class="h-12 w-12 rounded-2xl bg-primary-600 text-white flex items-center justify-center shadow-lg shadow-primary-600/30">
+      <lucide-icon [name]="ShoppingCartIcon" class="h-6 w-6"></lucide-icon>
+    </div>
+    <div class="flex flex-col">
+      <span class="text-xs font-black text-primary-600 uppercase tracking-widest mb-1">Carrito Actualizado</span>
+      <span class="font-bold text-slate-900 dark:text-white">{{toastMessage}}</span>
+    </div>
+  </div>
+</div>

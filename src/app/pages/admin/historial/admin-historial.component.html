@@ -1,0 +1,73 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Historial de Cambios</h1>
+      <p class="text-slate-600 dark:text-slate-400">Registro completo de todas las modificaciones en el sistema</p>
+    </div>
+  </div>
+
+  <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+          <tr>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Fecha y Hora</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Usuario</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Acción</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Entidad</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Detalle</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+          @if (isLoading) {
+            <tr>
+              <td colspan="5" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  <span>Cargando historial...</span>
+                </div>
+              </td>
+            </tr>
+          } @else if (history.length === 0) {
+            <tr>
+              <td colspan="5" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
+                    <lucide-angular name="clock" class="w-8 h-8 text-slate-400"></lucide-angular>
+                  </div>
+                  <span class="text-lg font-medium">No hay registros de cambios aún</span>
+                </div>
+              </td>
+            </tr>
+          } @else {
+            @for (entry of history; track entry.id) {
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                  {{ formatDate(entry.timestamp) }}
+                </td>
+                <td class="px-6 py-4">
+                  <span class="font-medium text-slate-900 dark:text-white">{{ entry.userName }}</span>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="px-3 py-1 rounded-full text-xs font-semibold" [ngClass]="{
+                    'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': entry.action === 'create',
+                    'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400': entry.action === 'update',
+                    'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': entry.action === 'delete'
+                  }">
+                    {{ getActionLabel(entry.action) }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                  {{ getEntityLabel(entry.entity) }}
+                </td>
+                <td class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
+                  {{ entry.details }}
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

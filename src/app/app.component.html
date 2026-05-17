@@ -1,0 +1,11 @@
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300 flex flex-col">
+  <app-navbar></app-navbar>
+  <main class="flex-grow">
+    <div [@routeFade]="outlet.isActivated ? outlet.activatedRoute.snapshot.url.join('/') : ''">
+      <router-outlet #outlet="outlet"></router-outlet>
+    </div>
+  </main>
+  <app-footer></app-footer>
+  <app-toast></app-toast>
+  <app-modal></app-modal>
+</div>

@@ -1,0 +1,119 @@
+<div class="bg-slate-50 dark:bg-slate-950 min-h-screen transition-colors duration-300">
+  
+  <!-- Hero Section Proveedores -->
+  <div class="bg-gradient-to-br from-primary-900 to-medical-teal text-white relative overflow-hidden pt-24 pb-16 px-4">
+    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
+    <div class="max-w-7xl mx-auto relative z-10 text-center">
+      <div class="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-6 backdrop-blur-sm">
+        <lucide-icon [name]="BriefcaseIcon" class="h-8 w-8 text-primary-200"></lucide-icon>
+      </div>
+      <h1 class="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">Portal Exclusivo Proveedores y Mayoristas</h1>
+      <p class="text-lg md:text-xl text-primary-100 max-w-3xl mx-auto leading-relaxed">
+        Accede a nuestro catálogo especial con precios por volumen. Ideal para clínicas, hospitales y distribuidores a lo largo de todo Chile.
+      </p>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <!-- Benefits/Information -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col items-center text-center">
+        <div class="h-12 w-12 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-full flex items-center justify-center mb-4">
+          <lucide-icon [name]="TrendingDownIcon" class="h-6 w-6"></lucide-icon>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Descuentos Escalonados</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm">1-9 unid: Precio Lista<br>10-49 unid: 15% DCTO<br>50+ unid: 30% DCTO</p>
+      </div>
+      <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col items-center text-center">
+        <div class="h-12 w-12 bg-medical-teal/10 text-medical-teal rounded-full flex items-center justify-center mb-4">
+          <lucide-icon [name]="BriefcaseIcon" class="h-6 w-6"></lucide-icon>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Stock Garantizado</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm">Prioridad de inventario para compras mayoristas y abastecimiento continuo.</p>
+      </div>
+      <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col items-center text-center">
+        <div class="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mb-4">
+          <lucide-icon [name]="PhoneCallIcon" class="h-6 w-6"></lucide-icon>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Atención Personalizada</h3>
+        <p class="text-slate-600 dark:text-slate-400 text-sm">Ejecutivo de cuentas asignado para gestionar tus órdenes y despachos.</p>
+      </div>
+    </div>
+
+    <!-- Login Prompt if not logged in -->
+    <div *ngIf="!(authService.currentUser$ | async)" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-8 text-center mb-12 animate-fade-in">
+      <h2 class="text-2xl font-bold text-blue-900 dark:text-blue-100 mb-4">Inicia sesión para solicitar cotizaciones</h2>
+      <p class="text-blue-700 dark:text-blue-300 mb-6 max-w-2xl mx-auto">Para acceder a precios especiales y gestionar compras por volumen, debes ingresar con tu cuenta de usuario o empresa.</p>
+      <div class="flex justify-center gap-4">
+        <a routerLink="/login" class="btn-primary">Ingresar</a>
+        <a routerLink="/register" class="px-6 py-2.5 rounded-lg border-2 border-primary-600 text-primary-600 font-semibold hover:bg-primary-50 transition-colors">Registrar Empresa</a>
+      </div>
+    </div>
+
+    <!-- Catalog -->
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Catálogo Mayorista Disponible</h2>
+      <div class="relative w-72 hidden md:block">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <lucide-icon [name]="SearchIcon" class="h-5 w-5 text-slate-400"></lucide-icon>
+        </div>
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          (ngModelChange)="applyFilters()"
+          class="block w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg leading-5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors" 
+          placeholder="Buscar producto mayorista..."
+        >
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div *ngFor="let i of [1,2,3]" class="bg-slate-200 dark:bg-slate-800 h-64 rounded-xl animate-pulse"></div>
+    </div>
+
+    <div *ngIf="!isLoading && filteredProducts.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div *ngFor="let product of filteredProducts" class="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-lg transition-all duration-300 group">
+        <div class="relative h-48 bg-slate-100 dark:bg-slate-800">
+          <img [src]="product.imagen || 'https://placehold.co/300'" [alt]="product.nombre" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          <div class="absolute top-2 right-2 bg-slate-900/80 backdrop-blur text-white text-xs font-bold px-3 py-1 rounded-full">
+            Stock: {{product.stock}}
+          </div>
+        </div>
+        <div class="p-5">
+          <p class="text-xs font-medium text-primary-600 dark:text-primary-400 mb-1 uppercase tracking-wider">{{product.categoria}}</p>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2 line-clamp-1">{{product.nombre}}</h3>
+          
+          <div class="space-y-2 mb-4 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-500 dark:text-slate-400">1 - 9 unid.</span>
+              <span class="font-medium text-slate-900 dark:text-white">${{product.precio | number:'1.2-2'}}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-500 dark:text-slate-400">10 - 49 unid.</span>
+              <span class="font-medium text-primary-600 dark:text-primary-400">${{product.precio * 0.85 | number:'1.2-2'}} <span class="text-[10px] bg-primary-100 text-primary-700 px-1 rounded ml-1">-15%</span></span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-500 dark:text-slate-400">50+ unid.</span>
+              <span class="font-bold text-green-600 dark:text-green-400">${{product.precio * 0.70 | number:'1.2-2'}} <span class="text-[10px] bg-green-100 text-green-700 px-1 rounded ml-1">-30%</span></span>
+            </div>
+          </div>
+
+          <button 
+            (click)="requestQuote(product)"
+            [disabled]="!(authService.currentUser$ | async)"
+            class="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            <lucide-icon [name]="ShoppingCartIcon" class="h-4 w-4"></lucide-icon>
+            Solicitar Cotización
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && filteredProducts.length === 0" class="text-center py-16 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+      <p class="text-slate-500 dark:text-slate-400">No se encontraron productos mayoristas con los filtros actuales.</p>
+    </div>
+
+  </div>
+</div>

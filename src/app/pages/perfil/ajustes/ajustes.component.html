@@ -1,0 +1,200 @@
+<div class="py-20 bg-[#F8FAFC] dark:bg-slate-950 min-h-screen transition-colors duration-500">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <div class="mb-12 animate-fade-in text-center lg:text-left">
+      <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 mb-4 font-bold text-xs uppercase tracking-widest">
+        Configuración de Cuenta
+      </div>
+      <h1 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter">Mi Perfil</h1>
+      <p class="text-slate-500 dark:text-slate-400 mt-4 text-lg font-medium">Gestione su identidad corporativa y logística de entrega.</p>
+    </div>
+
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20 space-y-6">
+      <div class="h-16 w-16 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin"></div>
+      <p class="text-sm font-black text-slate-400 uppercase tracking-widest animate-pulse">Sincronizando Datos...</p>
+    </div>
+
+    <div *ngIf="!isLoading" class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+      
+      <!-- Left Column: Avatar & Quick Stats -->
+      <div class="lg:col-span-4 space-y-6 animate-slide-up">
+        <div class="card p-8 text-center relative overflow-hidden bg-white dark:bg-slate-900 border-slate-200/50 dark:border-slate-800/50 shadow-xl">
+          <!-- Accent Background -->
+          <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-primary-600/10 to-medical-blue/10 dark:from-primary-600/5 dark:to-medical-blue/5"></div>
+          
+          <div class="relative inline-block mt-4 mb-6">
+            <div class="h-36 w-36 rounded-3xl border-4 border-white dark:border-slate-800 shadow-xl overflow-hidden bg-slate-100 dark:bg-slate-800 mx-auto transition-all duration-500 group hover:rounded-2xl">
+              <img *ngIf="fotoUrl" [src]="fotoUrl" class="h-full w-full object-cover">
+              <div *ngIf="!fotoUrl" class="h-full w-full flex items-center justify-center text-slate-300">
+                <lucide-icon [name]="UserIcon" class="h-16 w-16"></lucide-icon>
+              </div>
+            </div>
+            
+            <!-- Photo Actions -->
+            <div class="absolute -bottom-3 -right-3 flex flex-col gap-2">
+              <label class="h-10 w-10 bg-primary-600 text-white rounded-xl flex items-center justify-center cursor-pointer hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/20 border-2 border-white dark:border-slate-900 active:scale-95" title="Subir Foto">
+                <lucide-icon [name]="CameraIcon" class="h-4 w-4"></lucide-icon>
+                <input type="file" class="hidden" (change)="onFileSelected($event)" accept="image/*">
+              </label>
+            </div>
+          </div>
+
+          <div class="relative z-10">
+            <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">{{nombre}} {{apellido}}</h2>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">{{userData?.email}}</p>
+            
+            <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-3">
+              <button 
+                type="button"
+                (click)="toggleUrlInput()"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950/50 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 text-xs font-bold transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-800">
+                <lucide-icon [name]="LinkIcon" class="h-4 w-4"></lucide-icon>
+                Actualizar foto desde URL
+              </button>
+              
+              <a routerLink="/perfil/mis-pedidos" class="flex items-center gap-4 p-4 rounded-2xl bg-primary-50 dark:bg-primary-900/10 hover:bg-primary-100 dark:hover:bg-primary-900/20 transition-all group border border-primary-100/50 dark:border-primary-900/30">
+                <div class="h-10 w-10 rounded-xl bg-white dark:bg-slate-900 shadow-sm flex items-center justify-center text-primary-600 group-hover:scale-110 transition-transform">
+                  <lucide-icon [name]="PackageIcon" class="h-5 w-5"></lucide-icon>
+                </div>
+                <div class="text-left">
+                  <p class="text-xs font-black text-slate-900 dark:text-white">Mis Pedidos</p>
+                  <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Ver Historial</p>
+                </div>
+                <lucide-icon [name]="ChevronRightIcon" class="ml-auto h-4 w-4 text-slate-300 group-hover:text-primary-600 group-hover:translate-x-1 transition-all"></lucide-icon>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- URL Input Floating -->
+        <div *ngIf="showUrlInput" class="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xl animate-slide-up">
+          <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Enlace de Imagen</p>
+          <div class="flex gap-2">
+            <input type="text" [(ngModel)]="inputFotoUrl" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs outline-none focus:border-primary-500 transition-all" placeholder="https://...">
+            <button (click)="applyPhotoUrl()" class="bg-primary-600 text-white p-3 rounded-xl hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/20">
+              <lucide-icon [name]="CheckIcon" class="h-4 w-4"></lucide-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Settings Forms -->
+      <div class="lg:col-span-8 animate-slide-up" style="animation-delay: 150ms">
+        <form (ngSubmit)="guardarCambios()" class="space-y-6">
+          
+          <!-- Personal Section -->
+          <div class="surface p-6 sm:p-10 border-slate-200/50 dark:border-slate-800/50">
+            <div class="mb-8">
+              <h3 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Información Personal</h3>
+              <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Identidad y contacto corporativo</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-10">
+              <div class="space-y-2.5">
+                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-1">Nombre</label>
+                <div class="relative group">
+                  <input type="text" [(ngModel)]="nombre" name="nombre" class="w-full h-14 px-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all shadow-sm" placeholder="Ej: Francisco">
+                </div>
+              </div>
+              <div class="space-y-2.5">
+                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-1">Apellido</label>
+                <div class="relative group">
+                  <input type="text" [(ngModel)]="apellido" name="apellido" class="w-full h-14 px-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all shadow-sm" placeholder="Ej: Silva">
+                </div>
+              </div>
+              <div class="space-y-2.5">
+                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-1">Teléfono</label>
+                <div class="relative group">
+                  <input type="text" [(ngModel)]="telefono" name="telefono" class="w-full h-14 px-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all shadow-sm" placeholder="+56 9 ...">
+                </div>
+              </div>
+              <div class="space-y-2.5">
+                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-1">Email (No editable)</label>
+                <div class="relative group">
+                  <input type="email" [value]="userData?.email" disabled class="w-full h-14 px-6 rounded-2xl border border-slate-100 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-950 text-sm text-slate-500 dark:text-slate-400 cursor-not-allowed italic">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shipping Section -->
+          <div class="surface p-6 sm:p-10 border-slate-200/50 dark:border-slate-800/50">
+            <div class="mb-8">
+              <h3 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Centro de Despacho</h3>
+              <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Logística y dirección de entrega</p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-x-8 gap-y-10">
+              <div class="space-y-2.5">
+                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-1">Dirección (Calle y Número)</label>
+                <div class="relative group">
+                  <input type="text" [(ngModel)]="direccion" name="direccion" class="w-full h-14 px-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all shadow-sm" placeholder="Av. Las Condes 12450">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-10">
+                <div class="space-y-2.5">
+                  <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-1">Depto / Oficina</label>
+                  <div class="relative group">
+                    <input type="text" [(ngModel)]="numeroDepto" name="numeroDepto" class="w-full h-14 px-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all shadow-sm" placeholder="Of. 402">
+                  </div>
+                </div>
+                <div class="space-y-2.5">
+                  <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-1">Región</label>
+                  <div class="relative group">
+                    <input type="text" [(ngModel)]="region" name="region" class="w-full h-14 px-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all shadow-sm" placeholder="Metropolitana">
+                  </div>
+                </div>
+                <div class="space-y-2.5">
+                  <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-1">Comuna</label>
+                  <div class="relative group">
+                    <input type="text" [(ngModel)]="comuna" name="comuna" class="w-full h-14 px-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all shadow-sm" placeholder="Santiago">
+                  </div>
+                </div>
+                <div class="space-y-2.5">
+                  <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-1">Referencias</label>
+                  <div class="relative group">
+                    <input type="text" [(ngModel)]="referencias" name="referencias" class="w-full h-14 px-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all shadow-sm" placeholder="Ej: Portón azul...">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col sm:flex-row gap-4">
+            <button 
+              type="submit" 
+              [disabled]="isSaving"
+              class="flex-1 btn-primary py-4 shadow-xl shadow-primary-600/20 group relative overflow-hidden"
+            >
+              <span *ngIf="!isSaving" class="flex items-center justify-center gap-2">
+                Actualizar Perfil
+                <lucide-icon [name]="SaveIcon" class="h-4 w-4 group-hover:scale-110 transition-transform"></lucide-icon>
+              </span>
+              <div *ngIf="isSaving" class="flex items-center justify-center">
+                <div class="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              </div>
+            </button>
+          </div>
+
+          <!-- Status Messages -->
+          <div *ngIf="successMessage" class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-3 animate-fade-in">
+            <div class="h-8 w-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
+              <lucide-icon [name]="CheckCircleIcon" class="h-4 w-4"></lucide-icon>
+            </div>
+            <p class="text-xs font-bold text-emerald-700 dark:text-emerald-400">{{successMessage}}</p>
+          </div>
+          
+          <div *ngIf="errorMessage" class="p-4 rounded-2xl bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 flex items-center gap-3 animate-fade-in">
+            <div class="h-8 w-8 rounded-lg bg-red-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-red-500/20">
+              <lucide-icon [name]="XCircleIcon" class="h-4 w-4"></lucide-icon>
+            </div>
+            <p class="text-xs font-bold text-red-700 dark:text-red-400">{{errorMessage}}</p>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

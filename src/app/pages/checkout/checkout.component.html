@@ -1,0 +1,313 @@
+<div class="py-20 bg-[#F8FAFC] dark:bg-slate-950 min-h-screen transition-colors duration-500">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <div class="mb-12 animate-fade-in">
+      <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 mb-4 font-bold text-xs uppercase tracking-widest">
+        Seguridad Bancaria 256-bit
+      </div>
+      <h1 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter">Checkout Seguro</h1>
+    </div>
+
+    <!-- Success State -->
+    <div *ngIf="successMessage" class="max-w-2xl mx-auto py-20 animate-fade-in">
+      <div class="card bg-white dark:bg-slate-900 p-12 text-center border-emerald-100 dark:border-emerald-900/30">
+        <div class="h-24 w-24 bg-emerald-50 dark:bg-emerald-900/20 rounded-3xl flex items-center justify-center mx-auto mb-8 text-emerald-600 shadow-lg shadow-emerald-500/10">
+          <lucide-icon [name]="CheckCircleIcon" class="h-12 w-12"></lucide-icon>
+        </div>
+        <h2 class="text-4xl font-black text-slate-900 dark:text-white mb-4">¡Pedido Confirmado!</h2>
+        <p class="text-slate-500 dark:text-slate-400 mb-10 text-lg font-medium">Su orden ha sido procesada con éxito y el equipo de logística ya está preparando su despacho.</p>
+        
+        <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 mb-10">
+          <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Número de Seguimiento</p>
+          <p class="text-2xl font-mono font-black text-primary-600 tracking-wider">{{createdOrderId}}</p>
+        </div>
+        
+        <div class="flex items-center justify-center gap-3 text-sm font-black text-primary-600 uppercase tracking-widest animate-pulse">
+          <div class="h-2 w-2 rounded-full bg-primary-600"></div>
+          Redirigiendo a seguimiento...
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!successMessage" class="lg:grid lg:grid-cols-12 lg:gap-12 items-start">
+      
+      <!-- Checkout Form -->
+      <div class="lg:col-span-7 space-y-10">
+        
+        <!-- Error Alert -->
+        <div *ngIf="errorMessage" class="p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 flex items-center gap-4 animate-shake">
+          <div class="h-10 w-10 rounded-xl bg-red-600 text-white flex items-center justify-center shrink-0">
+            <lucide-icon [name]="XCircleIcon" class="h-5 w-5"></lucide-icon>
+          </div>
+          <p class="text-sm font-bold text-red-700 dark:text-red-400">{{ errorMessage }}</p>
+        </div>
+
+        <!-- Shipping Section -->
+        <div class="surface p-8 sm:p-10 border-slate-200/50 dark:border-slate-800/50">
+          <div class="flex items-center gap-5 mb-10">
+            <div class="h-12 w-12 rounded-2xl bg-primary-50 dark:bg-primary-900/20 text-primary-600 flex items-center justify-center shadow-sm">
+              <lucide-icon [name]="MapPinIcon" class="h-6 w-6"></lucide-icon>
+            </div>
+            <div>
+              <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase tracking-widest text-sm">Información de Despacho</h2>
+              <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Donde enviaremos sus productos</p>
+            </div>
+          </div>
+          
+          <div class="space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="group">
+                  <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Nombre</label>
+                  <input type="text" [(ngModel)]="nombre" class="input-field" placeholder="Ej: Juan">
+                </div>
+                <div class="group">
+                  <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Apellido</label>
+                  <input type="text" [(ngModel)]="apellido" class="input-field" placeholder="Ej: Pérez">
+                </div>
+              </div>
+
+              <div class="group">
+                <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">RUT</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="rut" 
+                  (input)="validateRUTInput(); formatRUT()"
+                  [class]="rutError ? 'border-red-300 focus:ring-red-500/5 focus:border-red-500/30' : ''"
+                  class="input-field" 
+                  placeholder="12.345.678-9"
+                >
+                <p *ngIf="rutError" class="mt-2 text-xs text-red-500 font-bold">{{ rutError }}</p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="group">
+                  <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Teléfono Móvil</label>
+                  <input type="tel" [(ngModel)]="telefono" class="input-field" placeholder="+56 9 1234 5678">
+                </div>
+                <div class="group">
+                  <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Código Postal</label>
+                  <input type="text" [(ngModel)]="codigoPostal" class="input-field" placeholder="8320000">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2 group">
+                  <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Calle y Número</label>
+                  <input type="text" [(ngModel)]="direccion" class="input-field" placeholder="Av. Las Condes 12345">
+                </div>
+                <div class="group">
+                  <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Depto/Oficina</label>
+                  <input type="text" [(ngModel)]="numeroDepto" class="input-field" placeholder="Of. 402">
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="group">
+                  <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Región</label>
+                  <select [(ngModel)]="region" (change)="onRegionChange()" class="input-field appearance-none cursor-pointer font-bold">
+                    <option value="" disabled selected>Seleccione Región</option>
+                    <option *ngFor="let r of regionesChile" [value]="r">{{r}}</option>
+                  </select>
+                </div>
+                <div class="group">
+                  <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Comuna</label>
+                  <select [(ngModel)]="comuna" [disabled]="!region" class="input-field appearance-none cursor-pointer font-bold disabled:opacity-20">
+                    <option value="" disabled selected>Seleccione Comuna</option>
+                    <option *ngFor="let c of comunasDisponibles" [value]="c">{{c}}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="group">
+                <label class="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-1">Referencias de Entrega (Opcional)</label>
+                <textarea [(ngModel)]="referencias" class="input-field min-h-[120px]" placeholder="Ej: Portón verde, llamar al llegar..."></textarea>
+              </div>
+          </div>
+        </div>
+
+        <!-- Shipping Type Section -->
+        <div class="surface p-8 sm:p-10 border-slate-200/50 dark:border-slate-800/50">
+          <div class="flex items-center gap-5 mb-10">
+            <div class="h-12 w-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 flex items-center justify-center shadow-sm">
+              <lucide-icon [name]="PackageIcon" class="h-6 w-6"></lucide-icon>
+            </div>
+            <div>
+              <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase tracking-widest text-sm">Modalidad de Envío</h2>
+              <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Velocidad de entrega requerida</p>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <button 
+              type="button"
+              (click)="tipoDespacho = 'normal'"
+              [class]="tipoDespacho === 'normal' ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/10 ring-4 ring-primary-500/5' : 'bg-slate-50 dark:bg-slate-950 border-slate-100 dark:border-slate-800'"
+              class="flex flex-col items-start p-6 rounded-3xl border-2 transition-all group text-left"
+            >
+              <div class="flex justify-between w-full mb-4">
+                <span class="text-sm font-black uppercase tracking-widest" [class]="tipoDespacho === 'normal' ? 'text-primary-700 dark:text-primary-400' : 'text-slate-900 dark:text-white'">Estandar</span>
+                <span class="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em]">Gratis</span>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">Entrega programada en un plazo de 3 a 5 días hábiles.</p>
+            </button>
+
+            <button 
+              type="button"
+              (click)="tipoDespacho = 'express'"
+              [class]="tipoDespacho === 'express' ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/10 ring-4 ring-primary-500/5' : 'bg-slate-50 dark:bg-slate-950 border-slate-100 dark:border-slate-800'"
+              class="flex flex-col items-start p-6 rounded-3xl border-2 transition-all group text-left"
+            >
+              <div class="flex justify-between w-full mb-4">
+                <span class="text-sm font-black uppercase tracking-widest" [class]="tipoDespacho === 'express' ? 'text-primary-700 dark:text-primary-400' : 'text-slate-900 dark:text-white'">Prioritario 24h</span>
+                <span class="text-[10px] font-black text-primary-600 uppercase tracking-[0.2em]">+$4.990</span>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">Despacho de urgencia médica. Entrega garantizada en menos de 24 horas.</p>
+            </button>
+          </div>
+        </div>
+
+        <!-- Payment Method Section -->
+        <div class="surface p-8 sm:p-10 border-slate-200/50 dark:border-slate-800/50">
+          <div class="flex items-center gap-5 mb-10">
+            <div class="h-12 w-12 rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 flex items-center justify-center shadow-sm">
+              <lucide-icon [name]="CreditCardIcon" class="h-6 w-6"></lucide-icon>
+            </div>
+            <div>
+              <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase tracking-widest text-sm">Método de Pago</h2>
+              <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Transacción segura y encriptada</p>
+            </div>
+          </div>
+          
+          <div class="space-y-6">
+            <div (click)="metodoPago = 'webpay'" class="relative flex items-center p-6 border-2 rounded-3xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-950 transition-all group" [class]="metodoPago === 'webpay' ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/10 ring-4 ring-primary-500/5' : 'border-slate-100 dark:border-slate-800'">
+              <div class="flex items-center justify-center h-6 w-6 rounded-full border-2 border-slate-200 group-hover:border-primary-500 transition-colors mr-6 shrink-0" [class.border-primary-600]="metodoPago === 'webpay'" [class.bg-primary-600]="metodoPago === 'webpay'">
+                <div *ngIf="metodoPago === 'webpay'" class="h-2 w-2 rounded-full bg-white"></div>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between gap-4 mb-2">
+                  <span class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Webpay Plus</span>
+                  <img src="https://www.transbankdevelopers.cl/public/library/img/svg/logo_webpay_plus.svg" alt="Webpay" class="h-5">
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Débito, Crédito y Prepago. Transacción inmediata y segura.</p>
+              </div>
+            </div>
+
+            <div (click)="metodoPago = 'transferencia'" class="relative flex items-center p-6 border-2 rounded-3xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-950 transition-all group" [class]="metodoPago === 'transferencia' ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/10 ring-4 ring-primary-500/5' : 'border-slate-100 dark:border-slate-800'">
+              <div class="flex items-center justify-center h-6 w-6 rounded-full border-2 border-slate-200 group-hover:border-primary-500 transition-colors mr-6 shrink-0" [class.border-primary-600]="metodoPago === 'transferencia'" [class.bg-primary-600]="metodoPago === 'transferencia'">
+                <div *ngIf="metodoPago === 'transferencia'" class="h-2 w-2 rounded-full bg-white"></div>
+              </div>
+              <div class="flex-1">
+                <span class="block text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-2">Transferencia Bancaria</span>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Acreditación manual en un plazo máximo de 24 horas hábiles.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Order Summary Column -->
+      <div class="lg:col-span-5 mt-12 lg:mt-0 sticky top-28">
+        <div class="surface p-8 sm:p-10 border-slate-200/50 dark:border-slate-800/50">
+          <div class="flex items-center gap-5 mb-10">
+            <div class="h-12 w-12 rounded-2xl bg-slate-900 dark:bg-slate-800 text-white flex items-center justify-center shadow-sm">
+              <lucide-icon [name]="PackageIcon" class="h-6 w-6"></lucide-icon>
+            </div>
+            <div>
+              <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase tracking-widest text-sm">Resumen de Orden</h2>
+              <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Verificación final de productos</p>
+            </div>
+          </div>
+          
+          <!-- Product List -->
+          <ul class="space-y-6 mb-10">
+            <li *ngFor="let item of (cartItems$ | async)" class="flex items-center gap-5">
+              <div class="h-16 w-16 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 shrink-0">
+                <img [src]="item.imagen" [alt]="item.nombre" class="h-full w-full object-cover">
+              </div>
+              <div class="flex-1 min-w-0">
+                <h4 class="text-sm font-black text-slate-900 dark:text-white truncate">{{item.nombre}}</h4>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{item.cantidad}} x ${{item.precio | number:'1.0-0'}}</p>
+              </div>
+              <p class="text-sm font-black text-slate-900 dark:text-white shrink-0">${{(item.precio * item.cantidad) | number:'1.0-0'}}</p>
+            </li>
+          </ul>
+
+          <div class="space-y-4 pt-8 border-t border-slate-100 dark:border-slate-800 mb-10">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Subtotal</span>
+              <span class="text-sm font-black text-slate-900 dark:text-white" *ngIf="(cartItems$ | async) as items">
+                ${{getSubtotalNormal(items) | number:'1.0-0'}}
+              </span>
+            </div>
+            <div *ngIf="(cartItems$ | async) as items">
+              <div *ngIf="getDiscountTotal(items) > 0" class="flex items-center justify-between text-emerald-600 mt-4">
+                <span class="text-xs font-black uppercase tracking-widest">Descuentos Aplicados</span>
+                <span class="text-sm font-black">-$ {{getDiscountTotal(items) | number:'1.0-0'}}</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Costo de Envío</span>
+              <span class="text-sm font-black text-emerald-500 uppercase tracking-widest">{{tipoDespacho === 'express' ? '$4.990' : 'Gratuito'}}</span>
+            </div>
+            
+            <div class="pt-6 border-t-2 border-slate-100 dark:border-slate-800 mt-6">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Total a Pagar</span>
+                <span class="text-4xl font-black text-primary-600 dark:text-primary-400 tracking-tighter" *ngIf="(cartItems$ | async) as items">
+                  ${{ (getSubtotalNormal(items) - getDiscountTotal(items)) + (tipoDespacho === 'express' ? 4990 : 0) | number:'1.0-0' }}
+                </span>
+              </div>
+              <p class="text-[10px] text-right text-slate-400 font-bold uppercase tracking-widest">Transacción en Pesos Chilenos (CLP)</p>
+            </div>
+          </div>
+
+          <button 
+            (click)="processCheckout()"
+            [disabled]="isLoading || !isFormValid()"
+            class="btn-primary w-full py-5 text-lg shadow-2xl shadow-primary-600/20 group relative overflow-hidden"
+          >
+            <span *ngIf="!isLoading" class="flex items-center justify-center gap-3">
+              Pagar con {{metodoPago === 'webpay' ? 'Webpay' : 'Transferencia'}}
+              <lucide-icon [name]="LockIcon" class="h-5 w-5 group-hover:scale-110 transition-transform"></lucide-icon>
+            </span>
+            <div *ngIf="isLoading" class="flex items-center justify-center">
+              <div class="h-6 w-6 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+            </div>
+          </button>
+          
+          <p class="mt-8 text-[9px] text-center text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
+            Al procesar el pago acepta nuestras <a href="#" class="text-primary-600 hover:underline">Políticas de Reembolso</a> <br> y <a href="#" class="text-primary-600 hover:underline">Términos y Condiciones</a> del servicio.
+          </p>
+      </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- Modal Simulación Webpay -->
+    <div *ngIf="isWebpaySimulating" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+        <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
+        <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full p-8 relative">
+          <div class="text-center">
+            <img src="https://www.transbankdevelopers.cl/public/library/img/svg/logo_webpay_plus.svg" alt="Webpay Plus" class="h-12 mx-auto mb-6">
+            
+            <div *ngIf="webpayStatus === 'processing'" class="py-8">
+              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+              <h3 class="text-lg font-medium text-slate-900">Conectando con Transbank...</h3>
+              <p class="text-sm text-slate-500 mt-2">Por favor no cierres esta ventana.</p>
+            </div>
+            
+            <div *ngIf="webpayStatus === 'success'" class="py-8 animate-fade-in">
+              <div class="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center text-green-500 mx-auto mb-4">
+                <lucide-icon [name]="CheckCircleIcon" class="h-8 w-8"></lucide-icon>
+              </div>
+              <h3 class="text-lg font-medium text-green-800">¡Pago Aprobado!</h3>
+              <p class="text-sm text-green-600 mt-2">Redirigiendo a la tienda...</p>
+            </div>
+            
+          </div>
+    </div>
+
+  </div>
+</div>

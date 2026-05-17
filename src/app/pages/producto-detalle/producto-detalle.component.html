@@ -1,0 +1,160 @@
+<div class="py-16 bg-[#F8FAFC] dark:bg-slate-950 min-h-screen transition-colors duration-500">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Navigation & Breadcrumb -->
+    <div class="flex items-center justify-between mb-10 animate-fade-in">
+      <button routerLink="/productos" class="flex items-center text-sm font-black text-slate-400 hover:text-primary-600 uppercase tracking-widest transition-all group">
+        <lucide-icon [name]="ArrowLeftIcon" class="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform"></lucide-icon>
+        Volver al Inventario
+      </button>
+      
+      <div class="hidden sm:flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+        <a routerLink="/" class="hover:text-primary-600">Inicio</a>
+        <lucide-icon [name]="ChevronDownIcon" class="h-3 w-3 -rotate-90"></lucide-icon>
+        <a routerLink="/productos" class="hover:text-primary-600">Productos</a>
+        <lucide-icon [name]="ChevronDownIcon" class="h-3 w-3 -rotate-90"></lucide-icon>
+        <span class="text-primary-600" *ngIf="product">{{product.nombre}}</span>
+      </div>
+    </div>
+
+    <!-- Skeleton Loading -->
+    <div *ngIf="isLoading" class="surface p-8 animate-pulse">
+      <div class="lg:grid lg:grid-cols-2 lg:gap-16">
+        <div class="aspect-square bg-slate-100 dark:bg-slate-800 rounded-3xl"></div>
+        <div class="mt-10 lg:mt-0 space-y-6">
+          <div class="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/4"></div>
+          <div class="h-12 bg-slate-100 dark:bg-slate-800 rounded w-3/4"></div>
+          <div class="h-8 bg-slate-100 dark:bg-slate-800 rounded w-1/3"></div>
+          <div class="space-y-3">
+            <div class="h-4 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+            <div class="h-4 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+            <div class="h-4 bg-slate-100 dark:bg-slate-800 rounded w-2/3"></div>
+          </div>
+          <div class="h-16 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Details -->
+    <div *ngIf="!isLoading && product" class="animate-fade-in">
+      <div class="lg:grid lg:grid-cols-2 lg:gap-16 items-start">
+        
+        <!-- Image Gallery -->
+        <div class="relative group">
+          <div class="aspect-square overflow-hidden rounded-5xl bg-white dark:bg-slate-900 shadow-premium border border-slate-100 dark:border-slate-800">
+            <img [src]="product.imagen || 'https://placehold.co/800?text=Sin+Imagen'" [alt]="product.nombre" class="w-full h-full object-center object-cover group-hover:scale-105 transition-transform duration-1000">
+          </div>
+          <!-- Floating Badge -->
+          <div *ngIf="product.precioOferta" class="absolute top-8 left-8 bg-primary-600 text-white text-xs font-black px-4 py-2 rounded-xl uppercase tracking-widest shadow-2xl">
+            Oferta Especial
+          </div>
+        </div>
+
+        <!-- Product info -->
+        <div class="mt-12 lg:mt-0">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="px-3 py-1 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-600 text-[10px] font-black uppercase tracking-widest">
+              {{product.categoria}}
+            </span>
+            <span class="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">REF: {{product.codigo}}</span>
+          </div>
+          
+          <h1 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-6 leading-tight">
+            {{product.nombre}}
+          </h1>
+
+          <div class="flex items-baseline gap-4 mb-8">
+            <p class="text-4xl font-black text-slate-900 dark:text-white">${{product.precio | number:'1.0-0'}}</p>
+            <p *ngIf="product.precioOferta" class="text-xl text-slate-400 font-bold line-through">${{product.precioOferta | number:'1.0-0'}}</p>
+          </div>
+
+          <div class="prose prose-slate dark:prose-invert max-w-none mb-10">
+            <p class="text-lg text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+              {{product.descripcion}}
+            </p>
+          </div>
+
+          <div class="surface p-8 mb-10 border-slate-200/50 dark:border-slate-800/50">
+            <!-- Stock Status -->
+            <div class="flex items-center gap-4 mb-8 p-4 rounded-2xl" 
+                 [ngClass]="{
+                   'bg-emerald-50 dark:bg-emerald-900/10': product.stock > 10,
+                   'bg-amber-50 dark:bg-amber-900/10': product.stock <= 10 && product.stock > 0,
+                   'bg-red-50 dark:bg-red-900/10': product.stock === 0
+                 }">
+              <div class="h-10 w-10 rounded-xl flex items-center justify-center shadow-sm" [class.bg-emerald-500]="product.stock > 10" [class.bg-amber-500]="product.stock <= 10 && product.stock > 0" [class.bg-red-500]="product.stock === 0">
+                <lucide-icon [name]="product.stock > 0 ? CheckIcon : AlertTriangleIcon" class="h-6 w-6 text-white"></lucide-icon>
+              </div>
+              <div>
+                <p class="text-xs font-black uppercase tracking-widest" [class.text-emerald-600]="product.stock > 10" [class.text-amber-600]="product.stock <= 10 && product.stock > 0" [class.text-red-600]="product.stock === 0">
+                  Estado de Disponibilidad
+                </p>
+                <p class="text-sm font-bold text-slate-700 dark:text-slate-200">
+                  {{ product.stock > 10 ? 'Disponibilidad inmediata (' + product.stock + ' unidades)' : 
+                     product.stock > 0 ? 'Stock crítico - ¡Últimas ' + product.stock + ' unidades!' : 
+                     'Sin stock - Próximo reabastecimiento en camino' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid grid-cols-2 gap-4 mb-10">
+              <div class="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+                <lucide-icon [name]="TruckIcon" class="h-5 w-5 text-primary-600"></lucide-icon>
+                <span class="text-xs font-bold text-slate-600 dark:text-slate-300">Envío Prioritario</span>
+              </div>
+              <div class="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+                <lucide-icon [name]="ShieldCheckIcon" class="h-5 w-5 text-primary-600"></lucide-icon>
+                <span class="text-xs font-bold text-slate-600 dark:text-slate-300">Garantía Clínica</span>
+              </div>
+            </div>
+
+            <!-- Action Area -->
+            <div class="flex flex-col sm:flex-row items-center gap-4">
+              <div class="flex items-center p-2 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 w-full sm:w-auto">
+                <button 
+                  (click)="decreaseQuantity()" 
+                  [disabled]="quantity <= 1"
+                  class="h-10 w-10 flex items-center justify-center text-slate-400 hover:text-primary-600 disabled:opacity-20 transition-colors font-black text-xl"
+                >
+                  -
+                </button>
+                <span class="px-6 font-black text-slate-900 dark:text-white min-w-[3rem] text-center">{{quantity}}</span>
+                <button 
+                  (click)="increaseQuantity()" 
+                  [disabled]="quantity >= product.stock"
+                  class="h-10 w-10 flex items-center justify-center text-slate-400 hover:text-primary-600 disabled:opacity-20 transition-colors font-black text-xl"
+                >
+                  +
+                </button>
+              </div>
+
+              <button 
+                (click)="addToCart()"
+                [disabled]="product.stock === 0"
+                class="flex-1 btn-primary w-full py-5 text-lg shadow-2xl shadow-primary-600/20 group"
+              >
+                <lucide-icon [name]="ShoppingCartIcon" class="h-6 w-6 mr-3 group-hover:scale-110 transition-transform"></lucide-icon>
+                {{ product.stock === 0 ? 'Notificar Disponibilidad' : 'Añadir al Carrito' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !product" class="text-center py-32 animate-fade-in card bg-white dark:bg-slate-900 max-w-2xl mx-auto">
+      <div class="h-24 w-24 bg-slate-50 dark:bg-slate-950 rounded-3xl flex items-center justify-center mx-auto mb-8 text-slate-400">
+        <lucide-icon [name]="SearchIcon" class="h-12 w-12"></lucide-icon>
+      </div>
+      <h2 class="text-3xl font-black text-slate-900 dark:text-white mb-4">Producto no localizado</h2>
+      <p class="text-slate-500 dark:text-slate-400 mb-10 text-lg font-medium">La referencia solicitada no se encuentra disponible en nuestro sistema actualmente.</p>
+      <a routerLink="/productos" class="btn-primary inline-flex items-center px-10">
+        Explorar Otros Productos
+      </a>
+    </div>
+
+  </div>
+</div>

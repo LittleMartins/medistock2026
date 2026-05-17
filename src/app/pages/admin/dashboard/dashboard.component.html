@@ -1,0 +1,178 @@
+<div class="space-y-10 animate-fade-in">
+  
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div>
+      <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 mb-3 font-bold text-[10px] uppercase tracking-widest">
+        Sistema de Gestión Central
+      </div>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Panel de Control</h1>
+    </div>
+    
+    <div class="flex items-center gap-3">
+      <div class="glass px-4 py-2.5 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 flex items-center gap-3">
+        <div class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+        <span class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Sistema Operativo</span>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 animate-pulse">
+    <div *ngFor="let i of [1,2,3,4]" class="surface h-32"></div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <!-- Ingresos Totales (Mes) -->
+    <div class="card p-8 bg-white dark:bg-slate-900 group">
+      <div class="flex items-center justify-between mb-6">
+        <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 group-hover:scale-110 transition-transform duration-500 shadow-sm">
+          <lucide-icon [name]="DollarSignIcon" class="h-6 w-6"></lucide-icon>
+        </div>
+        <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">+12% vs mes ant.</span>
+      </div>
+      <p class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Ventas Mensuales</p>
+      <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">${{monthlyRevenue | number:'1.0-0'}}</p>
+    </div>
+
+    <!-- Ticket Promedio -->
+    <div class="card p-8 bg-white dark:bg-slate-900 group">
+      <div class="flex items-center justify-between mb-6">
+        <div class="p-4 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 group-hover:scale-110 transition-transform duration-500 shadow-sm">
+          <lucide-icon [name]="ShoppingBagIcon" class="h-6 w-6"></lucide-icon>
+        </div>
+        <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest">Estable</span>
+      </div>
+      <p class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Ticket Promedio</p>
+      <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">${{averageTicket | number:'1.0-0'}}</p>
+    </div>
+
+    <!-- Pedidos del Día -->
+    <div class="card p-8 bg-white dark:bg-slate-900 group">
+      <div class="flex items-center justify-between mb-6">
+        <div class="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 group-hover:scale-110 transition-transform duration-500 shadow-sm">
+          <lucide-icon [name]="CalendarIcon" class="h-6 w-6"></lucide-icon>
+        </div>
+        <span class="text-[10px] font-black text-indigo-500 uppercase tracking-widest">En curso</span>
+      </div>
+      <p class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Pedidos de Hoy</p>
+      <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{{dailyOrdersCount}}</p>
+    </div>
+
+    <!-- Alertas de Stock -->
+    <div class="card p-8 bg-white dark:bg-slate-900 group" [class.border-red-500]="lowStockCount > 0">
+      <div class="flex items-center justify-between mb-6">
+        <div class="p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 text-red-600 group-hover:scale-110 transition-transform duration-500 shadow-sm">
+          <lucide-icon [name]="AlertTriangleIcon" class="h-6 w-6"></lucide-icon>
+        </div>
+        <span class="text-[10px] font-black text-red-500 uppercase tracking-widest" *ngIf="lowStockCount > 0">Acción Requerida</span>
+      </div>
+      <p class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Stock Crítico</p>
+      <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{{lowStockCount}}</p>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Chart -->
+    <div class="lg:col-span-3 card bg-white dark:bg-slate-900 overflow-hidden">
+      <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+        <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center">
+          <lucide-icon [name]="TrendingUpIcon" class="h-5 w-5 mr-3 text-primary-600"></lucide-icon>
+          Tendencia de Ingresos Semanal
+        </h2>
+      </div>
+      <div class="p-8">
+        <div class="h-80 w-full">
+          <canvas baseChart
+            [data]="salesChartData"
+            [options]="salesChartOptions"
+            [type]="'bar'">
+          </canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="lg:col-span-2 card bg-white dark:bg-slate-900 overflow-hidden">
+      <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+        <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center">
+          <lucide-icon [name]="ShoppingBagIcon" class="h-5 w-5 mr-3 text-primary-600"></lucide-icon>
+          Transacciones Recientes
+        </h2>
+        <a routerLink="/admin/pedidos" class="text-[10px] font-black text-primary-600 uppercase tracking-widest hover:text-primary-700 transition-colors">Ver Todo</a>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-950/50 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">
+            <tr>
+              <th class="px-8 py-4">ID Pedido</th>
+              <th class="px-8 py-4">Fecha</th>
+              <th class="px-8 py-4">Estado</th>
+              <th class="px-8 py-4 text-right">Monto Total</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr *ngFor="let order of recentOrders" class="hover:bg-slate-50/50 dark:hover:bg-slate-950/30 transition-all">
+              <td class="px-8 py-5 font-mono text-xs text-slate-900 dark:text-white font-bold">{{order.id | slice:0:8}}</td>
+              <td class="px-8 py-5 text-slate-500 dark:text-slate-400 font-medium">{{order.fecha | date:'mediumDate'}}</td>
+              <td class="px-8 py-5">
+                <span class="inline-flex items-center px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg"
+                  [ngClass]="{
+                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': order.estado === 'pendiente',
+                    'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400': order.estado === 'pagado',
+                    'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400': order.estado === 'preparando',
+                    'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400': order.estado === 'enviado',
+                    'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400': order.estado === 'entregado',
+                    'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': order.estado === 'cancelado'
+                  }">
+                  {{order.estado}}
+                </span>
+              </td>
+              <td class="px-8 py-5 font-black text-slate-900 dark:text-white text-right">${{order.total | number:'1.0-0'}}</td>
+            </tr>
+            <tr *ngIf="recentOrders.length === 0">
+              <td colspan="4" class="px-8 py-12 text-center text-slate-500 font-medium">No hay registros de pedidos disponibles.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Critical Stock Alert -->
+    <div class="card bg-white dark:bg-slate-900 overflow-hidden">
+      <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800">
+        <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center">
+          <lucide-icon [name]="AlertTriangleIcon" class="h-5 w-5 mr-3 text-red-500"></lucide-icon>
+          Insumos en Alerta
+        </h2>
+      </div>
+      <div class="p-8">
+        <div class="space-y-6">
+          <div *ngFor="let product of lowStockProducts" class="flex items-center justify-between group">
+            <div class="flex items-center min-w-0">
+              <div class="h-12 w-12 flex-shrink-0 rounded-xl bg-slate-50 dark:bg-slate-950 overflow-hidden border border-slate-100 dark:border-slate-800">
+                <img [src]="product.imagen || 'https://placehold.co/150'" [alt]="product.nombre" class="h-full w-full object-cover group-hover:scale-110 transition-transform">
+              </div>
+              <div class="ml-4 min-w-0">
+                <p class="text-sm font-black text-slate-900 dark:text-white truncate group-hover:text-primary-600 transition-colors">{{product.nombre}}</p>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cat: {{product.categoria}}</p>
+              </div>
+            </div>
+            <div class="ml-4 flex-shrink-0">
+              <span class="inline-flex items-center px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                [ngClass]="product.stock === 0 ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 border border-amber-100 dark:border-amber-900/30'">
+                {{product.stock}} un.
+              </span>
+            </div>
+          </div>
+          <div *ngIf="lowStockProducts.length === 0" class="text-center py-12">
+            <div class="h-16 w-16 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-4">
+              <lucide-icon [name]="CheckIcon" class="h-8 w-8"></lucide-icon>
+            </div>
+            <p class="text-sm font-bold text-slate-500 dark:text-slate-400">Inventario Saludable</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

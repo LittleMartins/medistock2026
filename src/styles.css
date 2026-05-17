@@ -1,0 +1,122 @@
+/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#F8FAFC] text-slate-900 transition-colors duration-300 antialiased selection:bg-primary-100 selection:text-primary-700;
+  }
+  
+  body.dark {
+    @apply bg-slate-950 text-slate-100 selection:bg-primary-900 selection:text-primary-100;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 dark:bg-primary-500 text-white px-8 py-3 rounded-2xl font-semibold shadow-premium hover:shadow-premium-hover hover:bg-primary-700 dark:hover:bg-primary-400 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2;
+  }
+
+  .btn-secondary {
+    @apply bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 px-8 py-3 rounded-2xl font-semibold border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-premium hover:bg-slate-50 dark:hover:bg-slate-800/80 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2;
+  }
+
+  .btn-outline {
+    @apply bg-transparent text-primary-600 dark:text-primary-400 px-8 py-3 rounded-2xl font-semibold border-2 border-primary-600/10 dark:border-primary-400/10 hover:bg-primary-50 dark:hover:bg-primary-400/5 hover:border-primary-600 dark:hover:border-primary-400 transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-2;
+  }
+  
+  .card {
+    @apply bg-white dark:bg-slate-900 rounded-4xl border border-slate-100 dark:border-slate-800/50 shadow-premium overflow-hidden transition-all duration-500 hover:shadow-premium-hover hover:-translate-y-1;
+  }
+
+  .input-field {
+    @apply w-full px-6 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all duration-300 shadow-sm placeholder:text-slate-400 dark:placeholder:text-slate-600;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-xl px-3 py-1 text-xs font-bold tracking-tight border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300;
+  }
+
+  .surface {
+    @apply bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-5xl shadow-premium;
+  }
+
+  .glass {
+    @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border border-white/20 dark:border-slate-800/50 shadow-glass;
+  }
+}
+
+@layer utilities {
+  @keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes floaty {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+    100% { transform: translateY(0); }
+  }
+
+  @keyframes pulse-subtle {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes slide-in-right {
+    0% { transform: translateX(20px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 500ms ease-out both;
+  }
+
+  .animate-slide-up {
+    animation: fadeInUp 650ms ease-out both;
+  }
+
+  .animate-float {
+    animation: floaty 3.5s ease-in-out infinite;
+  }
+
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+
+  .animate-slide-right {
+    animation: slide-in-right 500ms ease-out both;
+  }
+}
+
+.page-transition-enter {
+  animation: fadeIn 400ms ease-out, fadeInUp 400ms ease-out;
+}
+
+.hover-lift {
+  @apply transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 dark:bg-slate-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400 dark:bg-slate-600;
+}

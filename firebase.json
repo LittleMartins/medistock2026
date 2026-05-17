@@ -1,0 +1,76 @@
+{
+  "hosting": {
+    "public": "dist/medistock/browser",
+    "predeploy": [
+      "npm run build"
+    ],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(js|css|svg|png|jpg|jpeg|gif|webp|woff|woff2|ttf|eot|ico)",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/api/initWebpayTransaction",
+        "function": "initWebpayTransaction"
+      },
+      {
+        "source": "/api/confirmWebpayTransaction",
+        "function": "confirmWebpayTransaction"
+      },
+      {
+        "source": "/api/sendEmailWithPdf",
+        "function": { "functionId": "sendEmailWithPdf", "region": "us-central1" }
+      },
+      {
+        "source": "/api/v1/productos/**",
+        "function": { "functionId": "getProductApi", "region": "us-central1" }
+      },
+      {
+        "source": "/api/logistica/crear-etiqueta",
+        "function": { "functionId": "createLogisticsLabel", "region": "us-central1" }
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": {
+    "source": "functions",
+    "ignore": [
+      "node_modules/**",
+      ".git/**",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      "*.local"
+    ]
+  },
+  "storage": [
+    {
+      "bucket": "medistock-15247.firebasestorage.app",
+      "rules": "storage.rules"
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+<footer class="bg-white dark:bg-slate-950 border-t border-slate-200/50 dark:border-slate-800/50 pt-20 pb-10 transition-colors">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+      
+      <!-- Brand -->
+      <div class="space-y-6">
+        <a routerLink="/" class="flex items-center space-x-3 group">
+          <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-primary-600 to-medical-blue text-white flex items-center justify-center shadow-lg shadow-primary-500/20 group-hover:scale-105 transition-transform duration-300">
+            <lucide-icon [name]="ActivityIcon" class="h-6 w-6"></lucide-icon>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
+              MEDI<span class="text-primary-600">STOCK</span>
+            </span>
+            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] mt-1">Medical Solutions</span>
+          </div>
+        </a>
+        <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+          Tu proveedor integral de soluciones médicas de alta precisión. Innovación y confianza para el sector salud.
+        </p>
+        <div class="flex space-x-3">
+          <a href="#" class="h-10 w-10 rounded-xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/10 transition-all">
+            <lucide-icon [name]="FacebookIcon" class="h-5 w-5"></lucide-icon>
+          </a>
+          <a href="#" class="h-10 w-10 rounded-xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/10 transition-all">
+            <lucide-icon [name]="TwitterIcon" class="h-5 w-5"></lucide-icon>
+          </a>
+          <a href="#" class="h-10 w-10 rounded-xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/10 transition-all">
+            <lucide-icon [name]="InstagramIcon" class="h-5 w-5"></lucide-icon>
+          </a>
+          <a href="#" class="h-10 w-10 rounded-xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/10 transition-all">
+            <lucide-icon [name]="LinkedinIcon" class="h-5 w-5"></lucide-icon>
+          </a>
+        </div>
+      </div>
+
+      <!-- Links -->
+      <div>
+        <h3 class="text-slate-900 dark:text-white text-sm font-black uppercase tracking-widest mb-6">Empresa</h3>
+        <ul class="space-y-4 text-sm text-slate-500 dark:text-slate-400 font-bold">
+          <li><a routerLink="/" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Inicio</a></li>
+          <li><a routerLink="/productos" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Productos</a></li>
+          <li><a routerLink="/tracking" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Seguimiento</a></li>
+          <li><a routerLink="/contacto" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Soporte Técnico</a></li>
+        </ul>
+      </div>
+
+      <!-- Categories -->
+      <div>
+        <h3 class="text-slate-900 dark:text-white text-sm font-black uppercase tracking-widest mb-6">Categorías</h3>
+        <ul class="space-y-4 text-sm text-slate-500 dark:text-slate-400 font-bold">
+          <li><a [routerLink]="['/productos']" [queryParams]="{categoria: 'equipamiento'}" class="hover:text-primary-600 transition-colors">Equipamiento</a></li>
+          <li><a [routerLink]="['/productos']" [queryParams]="{categoria: 'descartables'}" class="hover:text-primary-600 transition-colors">Material Descartable</a></li>
+          <li><a [routerLink]="['/productos']" [queryParams]="{categoria: 'instrumental'}" class="hover:text-primary-600 transition-colors">Instrumental</a></li>
+          <li><a [routerLink]="['/productos']" [queryParams]="{categoria: 'farmacia'}" class="hover:text-primary-600 transition-colors">Insumos Farmacia</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <h3 class="text-slate-900 dark:text-white text-sm font-black uppercase tracking-widest mb-6">Contacto Directo</h3>
+        <ul class="space-y-5 text-sm text-slate-500 dark:text-slate-400 font-bold">
+          <li class="flex items-start space-x-4">
+            <div class="h-10 w-10 rounded-xl bg-primary-50 dark:bg-primary-900/20 text-primary-600 flex items-center justify-center shrink-0">
+              <lucide-icon [name]="MapPinIcon" class="h-5 w-5"></lucide-icon>
+            </div>
+            <span class="pt-1">Av. Las Condes 12450, <br>Santiago, Chile</span>
+          </li>
+          <li class="flex items-center space-x-4">
+            <div class="h-10 w-10 rounded-xl bg-primary-50 dark:bg-primary-900/20 text-primary-600 flex items-center justify-center shrink-0">
+              <lucide-icon [name]="PhoneIcon" class="h-5 w-5"></lucide-icon>
+            </div>
+            <span>+56 2 2345 6789</span>
+          </li>
+          <li class="flex items-center space-x-4">
+            <div class="h-10 w-10 rounded-xl bg-primary-50 dark:bg-primary-900/20 text-primary-600 flex items-center justify-center shrink-0">
+              <lucide-icon [name]="MailIcon" class="h-5 w-5"></lucide-icon>
+            </div>
+            <span>info&#64;medistock.cl</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+    
+    <div class="border-t border-slate-100 dark:border-slate-900 pt-10 text-center">
+      <p class="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest">
+        &copy; {{ currentYear }} MEDISTOCK SOLUTIONS. PROFESSIONAL MEDICAL SUPPLY.
+      </p>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,145 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h2 class="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+        <lucide-icon [name]="SettingsIcon" class="h-6 w-6 text-primary-600"></lucide-icon>
+        Configuración General
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Administra los ajustes globales de la tienda.</p>
+    </div>
+    
+    <div class="flex items-center gap-3">
+      <div *ngIf="saveSuccess" class="flex items-center gap-2 text-green-600 dark:text-green-400 text-sm font-medium animate-pulse">
+        <lucide-icon [name]="CheckCircleIcon" class="h-4 w-4"></lucide-icon>
+        Guardado con éxito
+      </div>
+      <button (click)="saveSettings()" [disabled]="isSaving || isLoading" class="btn-primary flex items-center gap-2">
+        <lucide-icon *ngIf="isSaving" name="loader" class="h-4 w-4 animate-spin"></lucide-icon>
+        <lucide-icon *ngIf="!isSaving" [name]="SaveIcon" class="h-4 w-4"></lucide-icon>
+        <span>Guardar Cambios</span>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="flex justify-center py-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+  </div>
+
+  <div *ngIf="!isLoading" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Columna Izquierda (Ajustes Principales) -->
+    <div class="lg:col-span-2 space-y-6">
+      
+      <!-- Información de la Tienda -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+          <lucide-icon [name]="StoreIcon" class="h-5 w-5 text-blue-500"></lucide-icon>
+          Información de la Tienda
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="col-span-full">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nombre de la Tienda</label>
+            <input type="text" [(ngModel)]="settings.storeName" class="input-field w-full" placeholder="Ej. Medistock">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
+              <lucide-icon [name]="MailIcon" class="h-3 w-3"></lucide-icon> Email de Contacto
+            </label>
+            <input type="email" [(ngModel)]="settings.contactEmail" class="input-field w-full" placeholder="contacto@tienda.com">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
+              <lucide-icon [name]="PhoneIcon" class="h-3 w-3"></lucide-icon> Teléfono de Soporte
+            </label>
+            <input type="text" [(ngModel)]="settings.supportPhone" class="input-field w-full" placeholder="+56 9 1234 5678">
+          </div>
+        </div>
+      </div>
+
+      <!-- Preferencias de Venta -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+          <lucide-icon [name]="PercentIcon" class="h-5 w-5 text-indigo-500"></lucide-icon>
+          Preferencias de Venta
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Moneda Base</label>
+            <select [(ngModel)]="settings.currency" class="input-field w-full">
+              <option value="CLP">Peso Chileno (CLP)</option>
+              <option value="USD">Dólar (USD)</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Impuesto Base (%)</label>
+            <input type="number" [(ngModel)]="settings.taxRate" class="input-field w-full" min="0" max="100">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Columna Derecha (Ajustes de Sistema) -->
+    <div class="space-y-6">
+      
+      <!-- Control de Inventario -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+          <lucide-icon [name]="BellIcon" class="h-5 w-5 text-orange-500"></lucide-icon>
+          Control de Inventario
+        </h3>
+        
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Umbral de Stock Bajo</label>
+          <p class="text-xs text-slate-500 mb-2">Recibir alerta cuando el stock baje de este valor.</p>
+          <input type="number" [(ngModel)]="settings.lowStockThreshold" class="input-field w-full" min="0">
+        </div>
+      </div>
+
+      <!-- Ajustes de Sistema -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+          <lucide-icon [name]="ShieldAlertIcon" class="h-5 w-5 text-red-500"></lucide-icon>
+          Sistema
+        </h3>
+        
+        <div class="space-y-4">
+          <label class="flex items-center cursor-pointer">
+            <div class="relative">
+              <input type="checkbox" [(ngModel)]="settings.enableEmails" class="sr-only">
+              <div class="block bg-slate-200 dark:bg-slate-700 w-10 h-6 rounded-full transition-colors"
+                [ngClass]="{'bg-primary-500 dark:bg-primary-600': settings.enableEmails}"></div>
+              <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"
+                [ngClass]="{'transform translate-x-4': settings.enableEmails}"></div>
+            </div>
+            <div class="ml-3 text-sm text-slate-700 dark:text-slate-300 font-medium">
+              Activar envío de correos
+            </div>
+          </label>
+
+          <label class="flex items-center cursor-pointer">
+            <div class="relative">
+              <input type="checkbox" [(ngModel)]="settings.maintenanceMode" class="sr-only">
+              <div class="block bg-slate-200 dark:bg-slate-700 w-10 h-6 rounded-full transition-colors"
+                [ngClass]="{'bg-red-500': settings.maintenanceMode}"></div>
+              <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"
+                [ngClass]="{'transform translate-x-4': settings.maintenanceMode}"></div>
+            </div>
+            <div class="ml-3 text-sm text-slate-700 dark:text-slate-300 font-medium">
+              Modo Mantenimiento
+            </div>
+          </label>
+          <p *ngIf="settings.maintenanceMode" class="text-xs text-red-500 mt-1">
+            Los clientes verán una pantalla de mantenimiento.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

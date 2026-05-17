@@ -1,0 +1,255 @@
+<div class="py-20 bg-[#F8FAFC] dark:bg-slate-950 min-h-screen transition-colors duration-500">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <div class="text-center mb-16 animate-fade-in">
+      <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 mb-4 font-bold text-xs uppercase tracking-widest">
+        Logística en Tiempo Real
+      </div>
+      <h1 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter">Seguimiento de Pedido</h1>
+    </div>
+
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20 space-y-6">
+      <div class="h-16 w-16 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin"></div>
+      <p class="text-sm font-black text-slate-400 uppercase tracking-widest animate-pulse">Sincronizando con GPS...</p>
+    </div>
+
+    <!-- Search Form -->
+    <div *ngIf="!isLoading && !orderId && !error" class="card bg-white dark:bg-slate-900 p-10 sm:p-12 border-slate-200/50 dark:border-slate-800/50 shadow-2xl">
+      <div class="flex items-center gap-5 mb-8">
+        <div class="h-12 w-12 rounded-2xl bg-primary-50 dark:bg-primary-900/20 text-primary-600 flex items-center justify-center shadow-sm">
+          <lucide-icon [name]="SearchIcon" class="h-6 w-6"></lucide-icon>
+        </div>
+        <div>
+          <h2 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-widest">Localizar Orden</h2>
+          <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Ingrese su identificador de pedido</p>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-4">
+        <div class="relative flex-1 group">
+          <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+            <lucide-icon [name]="PackageIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+          </div>
+          <input
+            [(ngModel)]="lookupOrderId"
+            (keyup.enter)="buscarPedido()"
+            type="text"
+            class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 outline-none transition-all dark:text-white font-mono font-bold"
+            placeholder="ORD-2026-XXXXXX"
+          />
+        </div>
+        <button (click)="buscarPedido()" class="btn-primary px-10 py-4 shadow-2xl shadow-primary-600/20">
+          Rastrear
+        </button>
+      </div>
+      
+      <p class="mt-8 text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
+        El número de orden fue enviado a su correo corporativo al momento de la compra. <br> Si tiene problemas, contacte a <a href="#" class="text-primary-600">soporte logístico</a>.
+      </p>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="!isLoading && error" class="text-center py-20 card bg-white dark:bg-slate-900 border-dashed border-2 border-red-100 dark:border-red-900/30">
+      <div class="h-20 w-20 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-sm">
+        <lucide-icon [name]="AlertTriangleIcon" class="h-10 w-10"></lucide-icon>
+      </div>
+      <h2 class="text-2xl font-black text-slate-900 dark:text-white mb-4 uppercase tracking-tight">{{error}}</h2>
+      <p class="text-slate-500 dark:text-slate-400 mb-10 text-lg font-medium px-10">No hemos podido localizar la orden en nuestra red de distribución actual.</p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <button (click)="error=''; orderId=''" class="btn-secondary px-8">Reintentar Búsqueda</button>
+        <a routerLink="/" class="btn-primary px-8">Volver al Inicio</a>
+      </div>
+    </div>
+
+    <!-- Order Tracking Info -->
+    <div *ngIf="!isLoading && order" class="space-y-10 animate-fade-in">
+      
+      <!-- Order Header Card -->
+      <div class="surface p-8 sm:p-10 border-slate-200/50 dark:border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-8">
+        <div class="flex items-center gap-6">
+          <div class="h-16 w-16 rounded-3xl bg-primary-600 text-white flex items-center justify-center shadow-2xl shadow-primary-600/30 shrink-0">
+            <lucide-icon [name]="PackageIcon" class="h-8 w-8"></lucide-icon>
+          </div>
+          <div>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Identificador de Pedido</p>
+            <p class="text-2xl font-black text-slate-900 dark:text-white font-mono tracking-wider">{{order.id}}</p>
+            <div class="flex items-center gap-2 mt-2">
+              <span class="h-2 w-2 rounded-full bg-primary-600 animate-pulse"></span>
+              <span class="text-xs font-black text-primary-600 uppercase tracking-widest">{{order.estado}}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row md:flex-col lg:flex-row items-stretch md:items-end lg:items-center gap-4">
+          <div class="text-left md:text-right lg:mr-6">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Fecha de Procesamiento</p>
+            <p class="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">{{order.fecha | date:'dd MMM, yyyy'}}</p>
+          </div>
+          <button *ngIf="order.estado !== 'cancelado'"
+                  (click)="downloadInvoice()"
+                  class="btn-secondary py-3 px-6 text-xs uppercase tracking-widest">
+            <lucide-icon [name]="DownloadIcon" class="h-4 w-4 mr-3"></lucide-icon>
+            Documento Tributario PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Tracking Visual Timeline -->
+      <div class="card bg-white dark:bg-slate-900 p-10 sm:p-12 border-slate-200/50 dark:border-slate-800/50">
+        <h2 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-widest mb-12 flex items-center gap-4">
+          <lucide-icon [name]="TruckIcon" class="h-6 w-6 text-primary-600"></lucide-icon>
+          Estado de Distribución
+        </h2>
+        
+        <div *ngIf="order.estado === 'cancelado'" class="p-6 rounded-2xl bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 text-red-600 text-center font-black uppercase tracking-widest mb-4">
+          Operación Anulada por el Sistema
+        </div>
+
+        <div *ngIf="order.estado !== 'cancelado'" class="relative">
+          <!-- Line Background -->
+          <div class="absolute left-6 md:left-1/2 top-0 bottom-0 w-1 bg-slate-100 dark:bg-slate-800 -translate-x-1/2 hidden md:block rounded-full"></div>
+          
+          <div class="space-y-16 relative">
+            <!-- Step 1: Confirmado -->
+            <div class="flex items-center md:justify-center relative group">
+              <div class="flex-1 text-right pr-12 hidden md:block">
+                <h3 class="text-sm font-black uppercase tracking-widest mb-1" [ngClass]="getStepStatus(0) !== 'pending' ? 'text-slate-900 dark:text-white' : 'text-slate-300 dark:text-slate-700'">Orden Recibida</h3>
+                <p class="text-xs font-medium leading-relaxed" [ngClass]="getStepStatus(0) !== 'pending' ? 'text-slate-500 dark:text-slate-400' : 'text-slate-300 dark:text-slate-700'">Validación de stock y métodos de pago completada.</p>
+              </div>
+              <div class="relative z-10 flex items-center justify-center w-14 h-14 rounded-2xl border-4 transition-all duration-500 shadow-xl" 
+                   [ngClass]="getStepStatus(0) === 'completed' ? 'bg-primary-600 border-primary-50 dark:border-primary-900/30 text-white scale-110' : 
+                              getStepStatus(0) === 'current' ? 'bg-white dark:bg-slate-900 border-primary-600 text-primary-600 animate-pulse scale-110' : 
+                              'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-300'">
+                <lucide-icon [name]="ClockIcon" class="w-6 h-6"></lucide-icon>
+              </div>
+              <div class="flex-1 pl-12">
+                <div class="md:hidden">
+                  <h3 class="text-sm font-black uppercase tracking-widest mb-1" [ngClass]="getStepStatus(0) !== 'pending' ? 'text-slate-900 dark:text-white' : 'text-slate-300 dark:text-slate-700'">Orden Recibida</h3>
+                  <p class="text-xs font-medium leading-relaxed" [ngClass]="getStepStatus(0) !== 'pending' ? 'text-slate-500 dark:text-slate-400' : 'text-slate-300 dark:text-slate-700'">Pedido validado.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2: Procesando -->
+            <div class="flex items-center md:justify-center relative group">
+              <div class="flex-1 text-right pr-12 hidden md:block">
+                <h3 class="text-sm font-black uppercase tracking-widest mb-1" [ngClass]="getStepStatus(1) !== 'pending' ? 'text-slate-900 dark:text-white' : 'text-slate-300 dark:text-slate-700'">Preparación</h3>
+                <p class="text-xs font-medium leading-relaxed" [ngClass]="getStepStatus(1) !== 'pending' ? 'text-slate-500 dark:text-slate-400' : 'text-slate-300 dark:text-slate-700'">Selección de productos y embalaje de grado clínico.</p>
+              </div>
+              <div class="relative z-10 flex items-center justify-center w-14 h-14 rounded-2xl border-4 transition-all duration-500 shadow-xl" 
+                   [ngClass]="getStepStatus(1) === 'completed' ? 'bg-primary-600 border-primary-50 dark:border-primary-900/30 text-white scale-110' : 
+                              getStepStatus(1) === 'current' ? 'bg-white dark:bg-slate-900 border-primary-600 text-primary-600 animate-pulse scale-110' : 
+                              'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-300'">
+                <lucide-icon [name]="PackageIcon" class="w-6 h-6"></lucide-icon>
+              </div>
+              <div class="flex-1 pl-12">
+                <div class="md:hidden">
+                  <h3 class="text-sm font-black uppercase tracking-widest mb-1" [ngClass]="getStepStatus(1) !== 'pending' ? 'text-slate-900 dark:text-white' : 'text-slate-300 dark:text-slate-700'">Preparación</h3>
+                  <p class="text-xs font-medium leading-relaxed" [ngClass]="getStepStatus(1) !== 'pending' ? 'text-slate-500 dark:text-slate-400' : 'text-slate-300 dark:text-slate-700'">Embalaje clínico.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3: Enviado -->
+            <div class="flex items-center md:justify-center relative group">
+              <div class="flex-1 text-right pr-12 hidden md:block">
+                <h3 class="text-sm font-black uppercase tracking-widest mb-1" [ngClass]="getStepStatus(2) !== 'pending' ? 'text-slate-900 dark:text-white' : 'text-slate-300 dark:text-slate-700'">En Tránsito</h3>
+                <p class="text-xs font-medium leading-relaxed" [ngClass]="getStepStatus(2) !== 'pending' ? 'text-slate-500 dark:text-slate-400' : 'text-slate-300 dark:text-slate-700'">Pedido en ruta de distribución hacia su dirección.</p>
+              </div>
+              <div class="relative z-10 flex items-center justify-center w-14 h-14 rounded-2xl border-4 transition-all duration-500 shadow-xl" 
+                   [ngClass]="getStepStatus(2) === 'completed' ? 'bg-primary-600 border-primary-50 dark:border-primary-900/30 text-white scale-110' : 
+                              getStepStatus(2) === 'current' ? 'bg-white dark:bg-slate-900 border-primary-600 text-primary-600 animate-pulse scale-110' : 
+                              'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-300'">
+                <lucide-icon [name]="TruckIcon" class="w-6 h-6"></lucide-icon>
+              </div>
+              <div class="flex-1 pl-12">
+                <div class="md:hidden">
+                  <h3 class="text-sm font-black uppercase tracking-widest mb-1" [ngClass]="getStepStatus(2) !== 'pending' ? 'text-slate-900 dark:text-white' : 'text-slate-300 dark:text-slate-700'">En Tránsito</h3>
+                  <p class="text-xs font-medium leading-relaxed" [ngClass]="getStepStatus(2) !== 'pending' ? 'text-slate-500 dark:text-slate-400' : 'text-slate-300 dark:text-slate-700'">Pedido en ruta.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 4: Entregado -->
+            <div class="flex items-center md:justify-center relative group">
+              <div class="flex-1 text-right pr-12 hidden md:block">
+                <h3 class="text-sm font-black uppercase tracking-widest mb-1" [ngClass]="getStepStatus(3) !== 'pending' ? 'text-slate-900 dark:text-white' : 'text-slate-300 dark:text-slate-700'">Entregado</h3>
+                <p class="text-xs font-medium leading-relaxed" [ngClass]="getStepStatus(3) !== 'pending' ? 'text-slate-500 dark:text-slate-400' : 'text-slate-300 dark:text-slate-700'">Suministros recibidos exitosamente en el destino final.</p>
+              </div>
+              <div class="relative z-10 flex items-center justify-center w-14 h-14 rounded-2xl border-4 transition-all duration-500 shadow-xl" 
+                   [ngClass]="getStepStatus(3) === 'completed' ? 'bg-emerald-500 border-emerald-50 dark:border-emerald-900/30 text-white scale-110 shadow-emerald-500/20' : 
+                              getStepStatus(3) === 'current' ? 'bg-white dark:bg-slate-900 border-emerald-500 text-emerald-500 animate-pulse scale-110' : 
+                              'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-300'">
+                <lucide-icon [name]="CheckCircleIcon" class="w-6 h-6"></lucide-icon>
+              </div>
+              <div class="flex-1 pl-12">
+                <div class="md:hidden">
+                  <h3 class="text-sm font-black uppercase tracking-widest mb-1" [ngClass]="getStepStatus(3) !== 'pending' ? 'text-slate-900 dark:text-white' : 'text-slate-300 dark:text-slate-700'">Entregado</h3>
+                  <p class="text-xs font-medium leading-relaxed" [ngClass]="getStepStatus(3) !== 'pending' ? 'text-slate-500 dark:text-slate-400' : 'text-slate-300 dark:text-slate-700'">Suministros recibidos.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <!-- Order Details -->
+        <div class="card bg-white dark:bg-slate-900 p-8 border-slate-200/50 dark:border-slate-800/50">
+          <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-8 flex items-center gap-3">
+            <lucide-icon [name]="PackageIcon" class="h-4 w-4 text-primary-600"></lucide-icon>
+            Detalle de Artículos
+          </h2>
+          
+          <ul role="list" class="divide-y divide-slate-100 dark:divide-slate-800">
+            <li *ngFor="let item of order.items" class="py-5 flex items-center justify-between group">
+              <div class="flex-1 min-w-0">
+                <h3 class="text-sm font-black text-slate-900 dark:text-white truncate group-hover:text-primary-600 transition-colors">
+                  <a [routerLink]="['/producto', item.productoId]">{{item.nombre}}</a>
+                </h3>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cant: {{item.cantidad}} x ${{item.precio | number:'1.0-0'}}</p>
+              </div>
+              <p class="text-sm font-black text-slate-900 dark:text-white shrink-0 ml-4">${{(item.precio * item.cantidad) | number:'1.0-0'}}</p>
+            </li>
+          </ul>
+          
+          <div class="mt-8 pt-8 border-t-2 border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Inversión Total</span>
+            <span class="text-2xl font-black text-primary-600 dark:text-primary-400 tracking-tighter">${{order.total | number:'1.0-0'}}</span>
+          </div>
+        </div>
+
+        <!-- Shipping Info -->
+        <div class="card bg-white dark:bg-slate-900 p-8 border-slate-200/50 dark:border-slate-800/50">
+          <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-8 flex items-center gap-3">
+            <lucide-icon [name]="MapPinIcon" class="h-4 w-4 text-primary-600"></lucide-icon>
+            Información Logística
+          </h2>
+          <div class="space-y-6">
+            <div>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Receptor Autorizado</p>
+              <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{order.direccionEnvio.nombre}} {{order.direccionEnvio.apellido}}</p>
+            </div>
+            <div>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Punto de Entrega</p>
+              <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{order.direccionEnvio.direccion}} {{order.direccionEnvio.numeroDepto ? ' - ' + order.direccionEnvio.numeroDepto : ''}}</p>
+              <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider">{{order.direccionEnvio.comuna}}, {{order.direccionEnvio.region}}</p>
+            </div>
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Contacto</p>
+                <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{order.direccionEnvio.telefono}}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Método de Pago</p>
+                <span class="text-[10px] font-black text-primary-600 uppercase tracking-[0.2em] px-2 py-1 bg-primary-50 dark:bg-primary-900/20 rounded-lg">{{order.metodoPago}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

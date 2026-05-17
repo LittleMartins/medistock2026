@@ -1,0 +1,270 @@
+<nav class="sticky top-0 z-50 transition-all duration-300">
+  <div class="glass border-b border-slate-200/50 dark:border-slate-800/50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-20">
+      
+      <!-- Logo -->
+      <div class="flex items-center">
+        <a routerLink="/" class="flex items-center space-x-3 group">
+          <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-primary-600 to-medical-blue text-white flex items-center justify-center shadow-lg shadow-primary-500/20 group-hover:scale-105 transition-transform duration-300">
+            <lucide-icon [name]="ActivityIcon" class="h-6 w-6"></lucide-icon>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
+              MEDI<span class="text-primary-600">STOCK</span>
+            </span>
+            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] mt-1">Medical Solutions</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Search Bar Desktop -->
+      <div class="hidden lg:flex flex-1 max-w-lg mx-12 relative items-center">
+        <div class="relative w-full group">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <lucide-icon [name]="SearchIcon" class="h-5 w-5 text-slate-400 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+          </div>
+          <input 
+            type="text" 
+            [(ngModel)]="searchQuery"
+            (input)="onSearchInput()"
+            (blur)="closeSearch()"
+            (keyup.enter)="onSearchSubmit()"
+            class="w-full bg-slate-100/50 dark:bg-slate-900/50 border border-transparent focus:border-primary-500/30 rounded-2xl py-3 pl-12 pr-4 text-sm focus:ring-4 focus:ring-primary-500/5 dark:text-white transition-all outline-none"
+            placeholder="Buscar suministros, equipos o instrumental..."
+          >
+          
+          <!-- Search Results Dropdown -->
+          <div *ngIf="showSearchResults" class="absolute top-full left-0 right-0 mt-3 card py-3 shadow-2xl animate-slide-up z-[70]">
+            <div class="px-4 py-2 mb-2 border-b border-slate-100 dark:border-slate-800">
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Resultados Sugeridos</span>
+            </div>
+            <div *ngFor="let product of searchResults" 
+                 (click)="navigateAndClose(product.id!)"
+                 class="flex items-center space-x-4 px-4 py-3 hover:bg-primary-50 dark:hover:bg-primary-900/10 cursor-pointer transition-all group">
+              <div class="h-12 w-12 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50">
+                <img [src]="product.imagen" class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500">
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-primary-600 transition-colors">{{product.nombre}}</p>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">{{product.categoria}}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-black text-primary-600">${{product.precio | number:'1.0-0'}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center space-x-1">
+        <ng-container *ngFor="let link of navLinks">
+          <a [routerLink]="link.path" 
+             routerLinkActive="text-primary-600 bg-primary-50 dark:bg-primary-900/10"
+             [routerLinkActiveOptions]="{exact: true}"
+             class="px-4 py-2 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-all">
+            {{ link.name }}
+          </a>
+        </ng-container>
+      </div>
+
+      <!-- Right section (Cart + Auth + Theme) -->
+      <div class="hidden md:flex items-center space-x-4 ml-4">
+        
+        <div class="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-2"></div>
+
+        <button (click)="themeService.toggleTheme()" class="p-2.5 text-slate-600 dark:text-slate-300 hover:text-primary-600 transition-all rounded-xl hover:bg-white dark:hover:bg-slate-800 shadow-sm border border-transparent hover:border-slate-200 dark:hover:border-slate-700" aria-label="Toggle dark mode">
+          <lucide-icon *ngIf="!themeService.isDarkMode()" [name]="MoonIcon" class="h-5 w-5"></lucide-icon>
+          <lucide-icon *ngIf="themeService.isDarkMode()" [name]="SunIcon" class="h-5 w-5"></lucide-icon>
+        </button>
+
+        <a routerLink="/carrito" class="relative p-2.5 text-slate-600 dark:text-slate-300 hover:text-primary-600 transition-all rounded-xl hover:bg-white dark:hover:bg-slate-800 shadow-sm border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+          <lucide-icon [name]="ShoppingCartIcon" class="h-5 w-5"></lucide-icon>
+          <span *ngIf="cartService.cartCount > 0" class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-600 text-[10px] font-black text-white shadow-lg shadow-primary-600/30">
+            {{ cartService.cartCount }}
+          </span>
+        </a>
+
+        <ng-container *ngIf="(authService.currentUser$ | async) as user; else guestLinks">
+          <div class="flex items-center space-x-3">
+            <!-- Dropdown de Perfil -->
+            <div class="relative">
+              <button 
+                (click)="toggleProfile()"
+                class="flex items-center space-x-3 p-1 rounded-2xl hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 group border border-transparent hover:border-slate-200 dark:hover:border-slate-700 shadow-sm"
+              >
+                <div class="h-10 w-10 rounded-xl border-2 border-primary-500/10 group-hover:border-primary-500/30 transition-colors overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                  <img *ngIf="(authService.userData$ | async)?.photoUrl" [src]="(authService.userData$ | async)?.photoUrl" class="h-full w-full object-cover">
+                  <lucide-icon *ngIf="!(authService.userData$ | async)?.photoUrl" [name]="UserIcon" class="h-5 w-5 text-slate-400"></lucide-icon>
+                </div>
+                <div class="hidden lg:block text-left pr-2">
+                  <p class="text-xs font-black text-slate-900 dark:text-white leading-tight truncate max-w-[100px]">
+                    {{ (authService.userData$ | async)?.name || 'Usuario' }}
+                  </p>
+                  <p class="text-[9px] text-primary-600 dark:text-primary-400 font-black uppercase tracking-widest">Mi Cuenta</p>
+                </div>
+                <lucide-icon [name]="ChevronDownIcon" class="h-4 w-4 text-slate-400 group-hover:text-primary-500 transition-all mr-1" [class.rotate-180]="isProfileOpen"></lucide-icon>
+              </button>
+
+              <!-- Menu Desplegable -->
+              <div *ngIf="isProfileOpen" 
+                   class="absolute right-0 mt-3 w-64 card py-3 shadow-2xl animate-slide-up z-[60]"
+                   (mouseleave)="closeProfile()">
+                <div class="px-4 py-3 mb-2 border-b border-slate-100 dark:border-slate-800">
+                  <p class="text-xs font-bold text-slate-900 dark:text-white truncate">{{ (authService.currentUser$ | async)?.email }}</p>
+                  <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-medium">Cliente Verificado</p>
+                </div>
+
+                <a routerLink="/perfil/ajustes" (click)="closeProfile()" class="flex items-center space-x-3 px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-primary-50 dark:hover:bg-primary-900/10 hover:text-primary-600 transition-colors">
+                  <div class="h-8 w-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                    <lucide-icon [name]="SettingsIcon" class="h-4 w-4"></lucide-icon>
+                  </div>
+                  <span>Mi Perfil</span>
+                </a>
+                <a routerLink="/perfil/mis-pedidos" (click)="closeProfile()" class="flex items-center space-x-3 px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-primary-50 dark:hover:bg-primary-900/10 hover:text-primary-600 transition-colors">
+                  <div class="h-8 w-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                    <lucide-icon [name]="PackageIcon" class="h-4 w-4"></lucide-icon>
+                  </div>
+                  <span>Mis Pedidos</span>
+                </a>
+
+                <div *ngIf="authService.isAdmin" class="my-2 border-t border-slate-100 dark:border-slate-800"></div>
+                <a *ngIf="authService.isAdmin" routerLink="/admin" (click)="closeProfile()" class="flex items-center space-x-3 px-4 py-3 text-sm font-bold text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/10 transition-colors">
+                  <div class="h-8 w-8 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600">
+                    <lucide-icon [name]="LayoutDashboardIcon" class="h-4 w-4"></lucide-icon>
+                  </div>
+                  <span>Panel de Control</span>
+                </a>
+
+                <div class="my-2 border-t border-slate-100 dark:border-slate-800"></div>
+                <button (click)="confirmLogout()" class="flex items-center space-x-3 px-4 py-3 w-full text-left text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+                  <div class="h-8 w-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600">
+                    <lucide-icon [name]="LogOutIcon" class="h-4 w-4"></lucide-icon>
+                  </div>
+                  <span>Cerrar Sesión</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #guestLinks>
+          <div class="flex items-center space-x-3">
+            <a routerLink="/login" class="px-5 py-2.5 text-sm font-bold text-slate-700 dark:text-white hover:text-primary-600 transition-colors">
+              Ingresar
+            </a>
+            <a routerLink="/register" class="btn-primary py-2.5 px-6 text-sm">
+              Empezar
+            </a>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Mobile menu button -->
+      <div class="flex items-center md:hidden space-x-3">
+        <button (click)="themeService.toggleTheme()" class="p-2.5 text-slate-600 dark:text-slate-300 rounded-xl hover:bg-white dark:hover:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700">
+          <lucide-icon *ngIf="!themeService.isDarkMode()" [name]="MoonIcon" class="h-5 w-5"></lucide-icon>
+          <lucide-icon *ngIf="themeService.isDarkMode()" [name]="SunIcon" class="h-5 w-5"></lucide-icon>
+        </button>
+
+        <a routerLink="/carrito" class="relative p-2.5 text-slate-600 dark:text-slate-300 rounded-xl hover:bg-white dark:hover:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700">
+          <lucide-icon [name]="ShoppingCartIcon" class="h-5 w-5"></lucide-icon>
+          <span *ngIf="cartService.cartCount > 0" class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-600 text-[10px] font-black text-white">
+            {{ cartService.cartCount }}
+          </span>
+        </a>
+
+        <button (click)="toggleMenu()" class="p-2.5 text-slate-600 dark:text-white rounded-xl hover:bg-white dark:hover:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700">
+          <lucide-icon *ngIf="isMenuOpen" [name]="XIcon" class="h-5 w-5"></lucide-icon>
+          <lucide-icon *ngIf="!isMenuOpen" [name]="MenuIcon" class="h-5 w-5"></lucide-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Mobile Navigation -->
+  <div *ngIf="isMenuOpen" class="md:hidden glass border-t border-slate-200/50 dark:border-slate-800/50 animate-fade-in overflow-hidden shadow-2xl">
+    <!-- Mobile Search -->
+    <div class="p-4 border-b border-slate-100 dark:border-slate-800/50">
+      <div class="relative group">
+        <lucide-icon [name]="SearchIcon" class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"></lucide-icon>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
+          (keyup.enter)="onSearchSubmit()"
+          class="w-full bg-slate-100 dark:bg-slate-900 border-none rounded-2xl py-3 pl-12 pr-4 text-sm dark:text-white focus:ring-4 focus:ring-primary-500/5 transition-all"
+          placeholder="¿Qué estás buscando?"
+        >
+        <!-- Mobile Search Results -->
+        <div *ngIf="showSearchResults" class="absolute top-full left-0 right-0 mt-2 card py-2 shadow-2xl z-50 overflow-hidden border-slate-200/50 dark:border-slate-800/50">
+          <div *ngFor="let product of searchResults" 
+               (click)="navigateAndClose(product.id!); closeMenu()"
+               class="flex items-center space-x-4 p-4 border-b border-slate-100 dark:border-slate-800/50 last:border-0 hover:bg-primary-50 dark:hover:bg-primary-900/10">
+            <div class="h-10 w-10 rounded-lg overflow-hidden flex-shrink-0 border border-slate-200/50 dark:border-slate-700/50">
+              <img [src]="product.imagen" class="h-full w-full object-cover">
+            </div>
+            <div class="flex-1 min-w-0">
+              <span class="text-sm font-bold text-slate-900 dark:text-white block truncate">{{product.nombre}}</span>
+              <span class="text-[10px] text-primary-600 font-bold uppercase tracking-wider">${{product.precio | number:'1.0-0'}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-4 py-6 space-y-2">
+      <a *ngFor="let link of navLinks" 
+         [routerLink]="link.path" 
+         (click)="closeMenu()" 
+         routerLinkActive="text-primary-600 bg-primary-50 dark:bg-primary-900/20"
+         [routerLinkActiveOptions]="{exact: true}"
+         class="flex items-center justify-between px-4 py-3.5 rounded-2xl text-base font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all">
+        {{ link.name }}
+        <lucide-icon [name]="ChevronDownIcon" class="h-4 w-4 -rotate-90 text-slate-300"></lucide-icon>
+      </a>
+      
+      <div class="my-4 border-t border-slate-100 dark:border-slate-800/50"></div>
+
+      <ng-container *ngIf="(authService.currentUser$ | async) as user; else mobileGuestLinks">
+        <a routerLink="/perfil/ajustes" (click)="closeMenu()" class="flex items-center space-x-4 px-4 py-3.5 rounded-2xl text-base font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900/50">
+          <div class="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center">
+            <lucide-icon [name]="UserIcon" class="h-5 w-5 text-slate-500"></lucide-icon>
+          </div>
+          <span>Mi Perfil</span>
+        </a>
+        <a routerLink="/perfil/mis-pedidos" (click)="closeMenu()" class="flex items-center space-x-4 px-4 py-3.5 rounded-2xl text-base font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900/50">
+          <div class="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center">
+            <lucide-icon [name]="PackageIcon" class="h-5 w-5 text-slate-500"></lucide-icon>
+          </div>
+          <span>Mis Pedidos</span>
+        </a>
+        <a *ngIf="authService.isAdmin" routerLink="/admin" (click)="closeMenu()" class="flex items-center space-x-4 px-4 py-3.5 rounded-2xl text-base font-bold text-primary-600 bg-primary-50 dark:bg-primary-900/10">
+          <div class="h-10 w-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+            <lucide-icon [name]="LayoutDashboardIcon" class="h-5 w-5"></lucide-icon>
+          </div>
+          <span>Panel Admin</span>
+        </a>
+        <button (click)="confirmLogout()" class="flex items-center space-x-4 w-full text-left px-4 py-3.5 rounded-2xl text-base font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10">
+          <div class="h-10 w-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+            <lucide-icon [name]="LogOutIcon" class="h-5 w-5"></lucide-icon>
+          </div>
+          <span>Cerrar Sesión</span>
+        </button>
+      </ng-container>
+      
+      <ng-template #mobileGuestLinks>
+        <div class="pt-2 flex flex-col space-y-3 px-2">
+          <a routerLink="/login" (click)="closeMenu()" class="flex items-center justify-center w-full px-6 py-4 border-2 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-white rounded-2xl font-bold hover:bg-slate-50 transition-all">
+            Ingresar
+          </a>
+          <a routerLink="/register" (click)="closeMenu()" class="btn-primary w-full py-4 text-center">
+            Crear Cuenta
+          </a>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</nav>

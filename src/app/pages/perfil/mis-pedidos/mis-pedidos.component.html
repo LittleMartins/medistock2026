@@ -1,0 +1,70 @@
+<div class="py-12 bg-slate-50 dark:bg-slate-950 min-h-screen transition-colors duration-300">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <div class="mb-10 animate-fade-in">
+      <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Mis Pedidos</h1>
+      <p class="text-slate-600 dark:text-slate-300 mt-2 text-lg">Historial de tus compras y seguimiento de envíos</p>
+    </div>
+
+    <div *ngIf="isLoading" class="space-y-4">
+      <div *ngFor="let i of [1,2,3]" class="h-32 w-full bg-white dark:bg-slate-900 rounded-2xl animate-pulse border border-slate-100 dark:border-slate-800"></div>
+    </div>
+
+    <div *ngIf="!isLoading && orders.length > 0" class="space-y-6">
+      <div *ngFor="let order of orders; let i = index" 
+           class="group surface hover-lift animate-slide-up" 
+           [style.animation-delay]="(i * 100) + 'ms'">
+        
+        <div class="p-6 sm:p-8">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div class="flex items-center gap-5">
+              <div class="h-14 w-14 rounded-2xl bg-primary-50 dark:bg-primary-900/20 text-primary-600 flex items-center justify-center shadow-sm">
+                <lucide-icon [name]="PackageIcon" class="h-7 w-7"></lucide-icon>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-widest mb-1">ID PEDIDO: {{order.id}}</p>
+                <h3 class="text-xl font-black text-slate-900 dark:text-white">
+                  {{order.fecha | date:'dd MMM, yyyy'}}
+                </h3>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-4">
+              <div class="flex flex-col items-end mr-4">
+                <p class="text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-widest mb-1">Total</p>
+                <p class="text-2xl font-black text-primary-600 dark:text-primary-400">${{order.total | number}}</p>
+              </div>
+              <span [class]="'px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest ' + getStatusClass(order.estado)">
+                {{order.estado}}
+              </span>
+              <a [routerLink]="['/tracking', order.id]" 
+                 class="h-12 w-12 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-primary-600 hover:text-white dark:hover:bg-primary-500 dark:hover:text-white transition-all duration-300">
+                <lucide-icon [name]="ChevronRightIcon" class="h-6 w-6"></lucide-icon>
+              </a>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800/50 flex flex-wrap gap-3">
+            <div *ngFor="let item of order.items" class="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-100 dark:border-slate-800">
+              <span class="text-xs font-bold text-primary-600">{{item.cantidad}}x</span>
+              <span class="text-sm font-medium text-slate-600 dark:text-slate-200">{{item.nombre}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && orders.length === 0" class="text-center py-32 surface animate-fade-in">
+      <div class="h-24 w-24 bg-slate-100 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-8 text-slate-400">
+        <lucide-icon [name]="ShoppingBagIcon" class="h-12 w-12"></lucide-icon>
+      </div>
+      <h3 class="text-3xl font-black text-slate-900 dark:text-white mb-4">Aún no tienes pedidos</h3>
+      <p class="text-slate-500 dark:text-slate-300 mb-10 max-w-md mx-auto text-lg">Explora nuestro catálogo y realiza tu primera compra de insumos médicos profesionales.</p>
+      <a routerLink="/productos" class="btn-primary px-10 py-4 text-lg inline-flex items-center gap-2">
+        Ir a la tienda
+        <lucide-icon [name]="ChevronRightIcon" class="h-5 w-5"></lucide-icon>
+      </a>
+    </div>
+
+  </div>
+</div>

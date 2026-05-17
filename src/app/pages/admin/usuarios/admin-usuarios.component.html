@@ -1,0 +1,273 @@
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Gestión de Usuarios</h2>
+    <div class="flex items-center gap-2">
+      <button (click)="exportToExcel()" class="btn-secondary flex items-center gap-2">
+        <lucide-icon name="download" class="h-4 w-4"></lucide-icon>
+        <span>Exportar a Excel</span>
+      </button>
+      <button (click)="openAddModal()" class="btn-primary flex items-center gap-2">
+        <lucide-icon name="plus" class="h-4 w-4"></lucide-icon>
+        <span>Nuevo Usuario</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card p-4">
+    <div class="flex flex-col md:flex-row gap-4">
+      <div class="flex-1 relative">
+        <lucide-icon [name]="SearchIcon" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></lucide-icon>
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          (ngModelChange)="applyFilters()"
+          placeholder="Buscar por nombre, email o ID..." 
+          class="input-field pl-10 w-full"
+        >
+      </div>
+      <div class="w-full md:w-48">
+        <select [(ngModel)]="roleFilter" (ngModelChange)="applyFilters()" class="input-field w-full">
+          <option value="todos">Todos los Roles</option>
+          <option value="admin">Administradores</option>
+          <option value="user">Usuarios</option>
+        </select>
+      </div>
+      <div class="w-full md:w-48">
+        <select [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()" class="input-field w-full">
+          <option value="todos">Todos los Estados</option>
+          <option value="active">Activos</option>
+          <option value="blocked">Bloqueados</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+        <thead class="bg-slate-50 dark:bg-slate-800/50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Usuario</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rol</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha Registro</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
+          <tr *ngIf="isLoading">
+            <td colspan="5" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
+              <div class="flex items-center justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                <span class="ml-2">Cargando usuarios...</span>
+              </div>
+            </td>
+          </tr>
+          
+          <tr *ngIf="!isLoading && filteredUsers.length === 0">
+            <td colspan="5" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
+              No se encontraron usuarios que coincidan con los filtros.
+            </td>
+          </tr>
+
+          <tr *ngFor="let user of filteredUsers" class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+            <td class="px-6 py-4 whitespace-nowrap cursor-pointer" (click)="viewUserDetails(user)">
+              <div class="flex items-center">
+                <div class="h-10 w-10 flex-shrink-0 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold text-lg">
+                  {{ user.name.charAt(0) || user.email.charAt(0) | uppercase }}
+                </div>
+                <div class="ml-4">
+                  <div class="text-sm font-medium text-slate-900 dark:text-white">{{ user.name }}</div>
+                  <div class="text-sm text-slate-500 dark:text-slate-400">{{ user.email }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2.5 py-1 text-xs font-medium rounded-full"
+                [ngClass]="{
+                  'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400': user.role === 'admin',
+                  'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400': user.role === 'user'
+                }">
+                {{ user.role | titlecase }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2.5 py-1 text-xs font-medium rounded-full inline-flex items-center gap-1"
+                [ngClass]="{
+                  'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': user.status !== 'blocked',
+                  'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': user.status === 'blocked'
+                }">
+                <lucide-icon [name]="user.status !== 'blocked' ? CheckCircleIcon : BanIcon" class="w-3 h-3"></lucide-icon>
+                {{ user.status === 'blocked' ? 'Bloqueado' : 'Activo' }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+              {{ user.createdAt | date:'shortDate' }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <div class="flex items-center justify-end gap-2">
+                <button (click)="editUser(user)" class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors" title="Editar">
+                  <lucide-icon [name]="EditIcon" class="w-4 h-4"></lucide-icon>
+                </button>
+                <button (click)="toggleBlockStatus(user)" class="p-2 text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-colors" [title]="user.status === 'blocked' ? 'Desbloquear' : 'Bloquear'">
+                  <lucide-icon [name]="user.status === 'blocked' ? CheckCircleIcon : BanIcon" class="w-4 h-4"></lucide-icon>
+                </button>
+                <button (click)="deleteUser(user)" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Eliminar">
+                  <lucide-icon [name]="Trash2Icon" class="w-4 h-4"></lucide-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div *ngIf="showModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <!-- Fondo oscuro -->
+      <div class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm transition-opacity" aria-hidden="true" (click)="closeModal()"></div>
+
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+      <!-- Contenido del modal -->
+      <div class="relative inline-block align-bottom bg-white dark:bg-slate-900 rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full border border-slate-200 dark:border-slate-800">
+        
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white" id="modal-title">
+            {{ isAdding ? 'Nuevo Usuario' : (editMode ? 'Editar Usuario' : 'Detalles del Usuario') }}
+          </h3>
+          <button (click)="closeModal()" class="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300">
+            <span class="sr-only">Cerrar</span>
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="px-6 py-6 max-h-[70vh] overflow-y-auto">
+          <!-- Vista de Detalles -->
+          <ng-container *ngIf="!editMode && selectedUser">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div>
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">ID de Usuario</p>
+                <p class="mt-1 text-sm text-slate-900 dark:text-white font-mono break-all">{{ selectedUser.uid }}</p>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Nombre</p>
+                <p class="mt-1 text-sm text-slate-900 dark:text-white">{{ selectedUser.name }}</p>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Email</p>
+                <p class="mt-1 text-sm text-slate-900 dark:text-white">{{ selectedUser.email }}</p>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Teléfono</p>
+                <p class="mt-1 text-sm text-slate-900 dark:text-white">{{ selectedUser.phone || 'No registrado' }}</p>
+              </div>
+              <div class="col-span-full">
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Dirección</p>
+                <p class="mt-1 text-sm text-slate-900 dark:text-white">{{ selectedUser.address || 'No registrada' }}</p>
+              </div>
+            </div>
+
+            <!-- Historial de Pedidos -->
+            <div class="border-t border-slate-200 dark:border-slate-800 pt-6">
+              <h4 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Historial de Pedidos</h4>
+              
+              <div *ngIf="isLoadingOrders" class="text-center py-4">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto"></div>
+              </div>
+
+              <div *ngIf="!isLoadingOrders && userOrders.length === 0" class="text-center py-4 text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/30 rounded-lg">
+                Este usuario aún no tiene pedidos.
+              </div>
+
+              <div *ngIf="!isLoadingOrders && userOrders.length > 0" class="space-y-3">
+                <div *ngFor="let order of userOrders" class="bg-slate-50 dark:bg-slate-800/30 p-4 rounded-lg flex items-center justify-between border border-slate-200 dark:border-slate-700">
+                  <div>
+                    <p class="text-sm font-bold text-slate-900 dark:text-white font-mono">{{ order.id }}</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">{{ order.fecha | date:'short' }}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-sm font-bold text-primary-600 dark:text-primary-400">${{ order.total | number:'1.2-2' }}</p>
+                    <span class="px-2 py-0.5 text-[10px] font-medium rounded-full uppercase"
+                      [ngClass]="{
+                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': order.estado === 'pendiente',
+                        'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400': order.estado === 'pagado',
+                        'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400': order.estado === 'preparando',
+                        'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400': order.estado === 'enviado',
+                        'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': order.estado === 'entregado',
+                        'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': order.estado === 'cancelado'
+                      }">
+                      {{ order.estado }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Formulario de Edición -->
+          <form *ngIf="editMode" (ngSubmit)="saveUser()" #userForm="ngForm" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nombre *</label>
+                <input type="text" [(ngModel)]="editedUser.name" name="name" class="input-field w-full" required #nameCtrl="ngModel" [ngClass]="{'border-red-500': nameCtrl.invalid && (nameCtrl.dirty || nameCtrl.touched)}">
+                <div *ngIf="nameCtrl.invalid && (nameCtrl.dirty || nameCtrl.touched)" class="text-red-500 text-xs mt-1">El nombre es requerido.</div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Teléfono</label>
+                <input type="text" [(ngModel)]="editedUser.phone" name="phone" class="input-field w-full">
+              </div>
+              <div *ngIf="isAdding" class="col-span-full md:col-span-1">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email *</label>
+                <input type="email" [(ngModel)]="editedUser.email" name="email" class="input-field w-full" required email #emailCtrl="ngModel" [ngClass]="{'border-red-500': emailCtrl.invalid && (emailCtrl.dirty || emailCtrl.touched)}">
+                <div *ngIf="emailCtrl.invalid && (emailCtrl.dirty || emailCtrl.touched)" class="text-red-500 text-xs mt-1">Ingresa un email válido.</div>
+              </div>
+              <div *ngIf="isAdding" class="col-span-full md:col-span-1">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contraseña *</label>
+                <input type="password" [(ngModel)]="editedUser.password" name="password" class="input-field w-full" required minlength="6" #pwdCtrl="ngModel" [ngClass]="{'border-red-500': pwdCtrl.invalid && (pwdCtrl.dirty || pwdCtrl.touched)}">
+                <div *ngIf="pwdCtrl.invalid && (pwdCtrl.dirty || pwdCtrl.touched)" class="text-red-500 text-xs mt-1">La contraseña debe tener al menos 6 caracteres.</div>
+              </div>
+              <div class="col-span-full">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Dirección</label>
+                <input type="text" [(ngModel)]="editedUser.address" name="address" class="input-field w-full">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Rol</label>
+                <select [(ngModel)]="editedUser.role" name="role" class="input-field w-full" required>
+                  <option value="user">Usuario</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Estado</label>
+                <select [(ngModel)]="editedUser.status" name="status" class="input-field w-full">
+                  <option value="active">Activo</option>
+                  <option value="blocked">Bloqueado</option>
+                </select>
+              </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+              <button type="button" (click)="closeModal()" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                Cancelar
+              </button>
+              <button type="submit" [disabled]="userForm.invalid || isSaving" class="btn-primary flex items-center gap-2">
+                <lucide-icon *ngIf="isSaving" name="loader" class="h-4 w-4 animate-spin"></lucide-icon>
+                <span>{{ isAdding ? 'Crear Usuario' : 'Guardar Cambios' }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div *ngIf="!editMode" class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex justify-end bg-slate-50 dark:bg-slate-800/50">
+          <button (click)="closeModal()" class="btn-secondary">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

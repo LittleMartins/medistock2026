@@ -1,0 +1,366 @@
+<div class="space-y-10 animate-fade-in">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+    <div>
+      <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 mb-3 font-bold text-[10px] uppercase tracking-widest">
+        Catálogo Maestro
+      </div>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Gestión de Productos</h1>
+    </div>
+    
+    <div class="flex items-center gap-3 w-full sm:w-auto">
+      <button (click)="downloadTemplate()" class="btn-secondary flex-1 sm:flex-none py-3 px-6 text-xs uppercase tracking-widest flex items-center justify-center gap-3 group">
+        <lucide-icon [name]="DownloadIcon" class="h-4 w-4 group-hover:-translate-y-0.5 transition-transform"></lucide-icon>
+        <span>Descargar Plantilla</span>
+      </button>
+      <input type="file" #fileInput (change)="importFromExcel($event)" accept=".xlsx, .xls" class="hidden">
+      <button (click)="fileInput.click()" class="btn-secondary flex-1 sm:flex-none py-3 px-6 text-xs uppercase tracking-widest flex items-center justify-center gap-3 group">
+        <lucide-icon [name]="PlusIcon" class="h-4 w-4 group-hover:rotate-90 transition-transform"></lucide-icon>
+        <span>Importar XLS</span>
+      </button>
+      <button (click)="exportToExcel()" class="btn-secondary flex-1 sm:flex-none py-3 px-6 text-xs uppercase tracking-widest flex items-center justify-center gap-3 group">
+        <lucide-icon [name]="DownloadIcon" class="h-4 w-4 group-hover:translate-y-0.5 transition-transform"></lucide-icon>
+        <span>Exportar XLS</span>
+      </button>
+      <button (click)="openAddModal()" class="btn-primary flex-1 sm:flex-none py-3 px-6 text-xs uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-primary-600/20 group">
+        <lucide-icon [name]="PlusIcon" class="h-4 w-4 group-hover:rotate-90 transition-transform"></lucide-icon>
+        <span>Añadir Recurso</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Search and Filters Card -->
+  <div class="surface p-6 sm:p-8 border-slate-200/50 dark:border-slate-800/50">
+    <div class="relative w-full max-w-xl group">
+      <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+        <lucide-icon [name]="SearchIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+      </div>
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (ngModelChange)="applyFilter()"
+        placeholder="Localizar por nombre, código REF o SKU..." 
+        class="input-field pl-12 w-full"
+      >
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="card bg-white dark:bg-slate-900 border-slate-200/50 dark:border-slate-800/50 overflow-hidden shadow-2xl">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm whitespace-nowrap">
+        <thead class="bg-slate-50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+          <tr>
+            <th class="px-8 py-5">Recurso</th>
+            <th class="px-8 py-5">Identificadores</th>
+            <th class="px-8 py-5">Categoría</th>
+            <th class="px-8 py-5 text-right">Inversión</th>
+            <th class="px-8 py-5 text-center">Estado</th>
+            <th class="px-8 py-5 text-center">Stock Global</th>
+            <th class="px-8 py-5 text-center">Operaciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+          <tr *ngIf="isLoading">
+            <td colspan="7" class="px-8 py-20 text-center">
+              <div class="h-12 w-12 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
+              <p class="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Sincronizando Catálogo...</p>
+            </td>
+          </tr>
+          <tr *ngIf="!isLoading && filteredProducts.length === 0">
+            <td colspan="7" class="px-8 py-20 text-center">
+              <div class="h-16 w-16 bg-slate-50 dark:bg-slate-950 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-300">
+                <lucide-icon [name]="PackageIcon" class="h-8 w-8"></lucide-icon>
+              </div>
+              <p class="text-sm font-bold text-slate-500 dark:text-slate-400">No se localizaron registros bajo estos criterios.</p>
+            </td>
+          </tr>
+          <tr *ngFor="let product of filteredProducts" class="hover:bg-slate-50/50 dark:hover:bg-slate-950/30 transition-all group">
+            <td class="px-8 py-6">
+              <div class="flex items-center">
+                <div class="h-12 w-12 flex-shrink-0 rounded-xl bg-slate-50 dark:bg-slate-950 overflow-hidden mr-4 border border-slate-100 dark:border-slate-800 shadow-sm group-hover:scale-110 transition-transform">
+                  <img [src]="product.imagen || 'https://via.placeholder.com/150'" [alt]="product.nombre" class="h-full w-full object-cover">
+                </div>
+                <div class="font-black text-slate-900 dark:text-white truncate max-w-[200px]">{{product.nombre}}</div>
+              </div>
+            </td>
+            <td class="px-8 py-6">
+              <div class="flex flex-col">
+                <span class="font-mono text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-wider">REF: {{product.codigo}}</span>
+                <span *ngIf="product.sku" class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">SKU: {{product.sku}}</span>
+              </div>
+            </td>
+            <td class="px-8 py-6">
+              <span class="px-2.5 py-1 text-[10px] font-black uppercase tracking-widest bg-slate-50 dark:bg-slate-950/50 text-slate-500 dark:text-slate-400 rounded-lg border border-slate-100 dark:border-slate-800">{{product.categoria}}</span>
+            </td>
+            <td class="px-8 py-6 text-right">
+              <div class="flex flex-col items-end">
+                <span class="font-black text-slate-900 dark:text-white" [ngClass]="{'line-through text-slate-400 text-[10px]': product.precioOferta}">${{product.precio | number:'1.0-0'}}</span>
+                <span *ngIf="product.precioOferta" class="font-black text-emerald-600 dark:text-emerald-400 text-sm mt-0.5">${{product.precioOferta | number:'1.0-0'}}</span>
+              </div>
+            </td>
+            <td class="px-8 py-6 text-center">
+              <button (click)="toggleProductStatus(product)" class="focus:outline-none group/status">
+                <span *ngIf="product.activo !== false" class="inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-900/30 group-hover/status:scale-105 transition-transform">Activo</span>
+                <span *ngIf="product.activo === false" class="inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-500 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 group-hover/status:scale-105 transition-transform">Inactivo</span>
+              </button>
+            </td>
+            <td class="px-8 py-6 text-center">
+              <span class="inline-flex items-center px-4 py-1.5 rounded-xl text-xs font-black"
+                [ngClass]="{
+                  'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20': product.stock > 10,
+                  'bg-amber-50 text-amber-600 dark:bg-amber-900/20': product.stock > 0 && product.stock <= 10,
+                  'bg-red-50 text-red-600 dark:bg-red-900/20': product.stock === 0
+                }">
+                {{product.stock}} un.
+              </span>
+            </td>
+            <td class="px-8 py-6 text-center">
+              <div class="flex justify-center gap-3">
+                <button (click)="openEditModal(product)" class="h-10 w-10 flex items-center justify-center text-blue-600 bg-blue-50 dark:bg-blue-900/20 rounded-xl hover:scale-110 transition-transform shadow-sm" title="Editar">
+                  <lucide-icon [name]="EditIcon" class="h-4 w-4"></lucide-icon>
+                </button>
+                <button (click)="deleteProduct(product.id!)" class="h-10 w-10 flex items-center justify-center text-red-600 bg-red-50 dark:bg-red-900/20 rounded-xl hover:scale-110 transition-transform shadow-sm" title="Eliminar">
+                  <lucide-icon [name]="Trash2Icon" class="h-4 w-4"></lucide-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal (Glass UI) -->
+  <div *ngIf="showModal" class="fixed inset-0 z-[100] overflow-y-auto flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm animate-fade-in" (click)="closeModal()"></div>
+
+    <!-- Modal Content -->
+    <div class="relative surface w-full max-w-3xl overflow-hidden animate-slide-up shadow-2xl border-slate-200 dark:border-slate-800">
+      <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
+        <div>
+          <h3 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-widest">
+            {{ isEditing ? 'Ficha de Edición' : 'Alta de Nuevo Recurso' }}
+          </h3>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Complete todos los campos técnicos requeridos</p>
+        </div>
+        <button (click)="closeModal()" class="h-10 w-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 text-slate-400 hover:text-red-500 transition-colors shadow-sm">
+          <lucide-icon [name]="XIcon" class="h-5 w-5"></lucide-icon>
+        </button>
+      </div>
+      
+      <div class="p-8 sm:p-10 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
+        <!-- Form -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="group">
+            <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Nombre Comercial</label>
+            <input type="text" [(ngModel)]="currentProduct.nombre" class="input-field" placeholder="Nombre descriptivo">
+          </div>
+          <div class="group">
+            <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Referencia (ID)</label>
+            <input type="text" [(ngModel)]="currentProduct.codigo" class="input-field font-mono" placeholder="Ej: REF-XXXX">
+          </div>
+          <div class="group">
+            <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">SKU Logístico</label>
+            <input type="text" [(ngModel)]="currentProduct.sku" class="input-field font-mono" placeholder="Ej: SKU-0000">
+          </div>
+          <div class="group">
+            <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Categoría Clínica</label>
+            <select [(ngModel)]="currentProduct.categoria" class="input-field font-bold appearance-none cursor-pointer">
+              <option *ngFor="let cat of categories" [value]="cat">{{cat | titlecase}}</option>
+            </select>
+          </div>
+          <div class="group">
+            <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Precio Unitario ($)</label>
+            <input type="number" [(ngModel)]="currentProduct.precio" class="input-field font-black" placeholder="0" min="0">
+          </div>
+          <div class="group">
+            <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Precio en Oferta ($)</label>
+            <input type="number" [(ngModel)]="currentProduct.precioOferta" class="input-field font-black text-emerald-600" placeholder="0" min="0">
+          </div>
+          <div class="group">
+            <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Stock Global Inicial</label>
+            <input type="number" [(ngModel)]="currentProduct.stock" class="input-field font-black" placeholder="0" min="0">
+          </div>
+          <div class="group">
+            <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Imagen Principal</label>
+            
+            <!-- Tabs -->
+            <div class="flex gap-2 mb-4">
+              <button 
+                type="button"
+                (click)="imageUploadTab = 'url'"
+                [class]="imageUploadTab === 'url' ? 'bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 border-primary-200 dark:border-primary-800' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'"
+                class="flex-1 py-2 px-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all"
+              >
+                <lucide-icon [name]="ImageIcon" class="inline h-3 w-3 mr-2"></lucide-icon>
+                URL
+              </button>
+              <button 
+                type="button"
+                (click)="imageUploadTab = 'device'"
+                [class]="imageUploadTab === 'device' ? 'bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 border-primary-200 dark:border-primary-800' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'"
+                class="flex-1 py-2 px-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all"
+              >
+                <lucide-icon [name]="UploadIcon" class="inline h-3 w-3 mr-2"></lucide-icon>
+                Dispositivo
+              </button>
+            </div>
+
+            <!-- URL Input -->
+            <div *ngIf="imageUploadTab === 'url'">
+              <input type="text" [(ngModel)]="currentProduct.imagen" class="input-field" placeholder="https://...">
+            </div>
+
+            <!-- File Upload -->
+            <div *ngIf="imageUploadTab === 'device'" class="space-y-3">
+              <input 
+                type="file" 
+                #mainImageInput 
+                (change)="onMainImageUpload($event)" 
+                accept="image/*"
+                class="hidden"
+              >
+              <button 
+                type="button" 
+                (click)="mainImageInput.click()"
+                [disabled]="imageUploading"
+                class="w-full py-4 px-6 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-primary-400 dark:hover:border-primary-600 transition-all flex flex-col items-center gap-2 disabled:opacity-50"
+              >
+                <div class="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                  <lucide-icon [name]="UploadIcon" class="h-5 w-5 text-slate-400"></lucide-icon>
+                </div>
+                <span class="text-xs font-bold text-slate-500">
+                  {{ imageUploading ? 'Subiendo...' : 'Seleccionar imagen desde dispositivo' }}
+                </span>
+              </button>
+              <div *ngIf="currentProduct.imagen" class="h-24 w-24 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 mx-auto">
+                <img [src]="currentProduct.imagen" class="h-full w-full object-cover">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bodegas Section -->
+        <div class="p-6 rounded-3xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+          <h4 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+            <lucide-icon [name]="ActivityIcon" class="h-4 w-4 text-primary-600"></lucide-icon>
+            Distribución por Centro de Almacenaje
+          </h4>
+          <div class="grid grid-cols-3 gap-6">
+            <div>
+              <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 text-center">B. Principal</label>
+              <input type="number" [(ngModel)]="currentProduct.bodegas!.principal" (ngModelChange)="syncTotalStock()" class="input-field py-2 text-center font-black" placeholder="0">
+            </div>
+            <div>
+              <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 text-center">B. Norte</label>
+              <input type="number" [(ngModel)]="currentProduct.bodegas!.norte" (ngModelChange)="syncTotalStock()" class="input-field py-2 text-center font-black" placeholder="0">
+            </div>
+            <div>
+              <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 text-center">B. Sur</label>
+              <input type="number" [(ngModel)]="currentProduct.bodegas!.sur" (ngModelChange)="syncTotalStock()" class="input-field py-2 text-center font-black" placeholder="0">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Multi Images -->
+        <div class="space-y-4">
+          <div class="flex justify-between items-center mb-1 px-1">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Galería Adicional</label>
+            <button type="button" (click)="addImage()" class="text-[10px] font-black text-primary-600 hover:text-primary-700 uppercase tracking-widest flex items-center gap-2">
+              <lucide-icon [name]="PlusIcon" class="h-3 w-3"></lucide-icon> Añadir Slot
+            </button>
+          </div>
+          <div class="grid grid-cols-1 gap-4">
+            <div *ngFor="let img of currentProduct.imagenes; let i = index; trackBy: trackByIndex" class="space-y-2 animate-fade-in">
+              <div class="flex gap-2 mb-2">
+                <button 
+                  type="button"
+                  (click)="setGalleryImageTab(i, 'url')"
+                  [class]="getGalleryImageTab(i) === 'url' ? 'bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 border-primary-200 dark:border-primary-800' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'"
+                  class="flex-1 py-1.5 px-3 rounded-xl text-[9px] font-black uppercase tracking-widest border-2 transition-all"
+                >
+                  URL
+                </button>
+                <button 
+                  type="button"
+                  (click)="setGalleryImageTab(i, 'device')"
+                  [class]="getGalleryImageTab(i) === 'device' ? 'bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 border-primary-200 dark:border-primary-800' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'"
+                  class="flex-1 py-1.5 px-3 rounded-xl text-[9px] font-black uppercase tracking-widest border-2 transition-all"
+                >
+                  Dispositivo
+                </button>
+                <button type="button" (click)="removeImage(i)" class="h-10 w-10 flex items-center justify-center text-red-500 bg-red-50 dark:bg-red-900/20 rounded-xl hover:scale-105 transition-transform">
+                  <lucide-icon [name]="Trash2Icon" class="h-4 w-4"></lucide-icon>
+                </button>
+              </div>
+              
+              <div *ngIf="getGalleryImageTab(i) === 'url'" class="flex gap-3">
+                <input type="text" [(ngModel)]="currentProduct.imagenes![i]" class="input-field flex-1 py-3" placeholder="URL de la imagen">
+              </div>
+              
+              <div *ngIf="getGalleryImageTab(i) === 'device'" class="flex gap-3 items-center">
+                <input 
+                  type="file" 
+                  [id]="'galleryImage_' + i"
+                  (change)="onGalleryImageUpload($event, i)" 
+                  accept="image/*"
+                  class="hidden"
+                >
+                <button 
+                  type="button" 
+                  (click)="triggerGalleryImageInput(i)"
+                  [disabled]="galleryImageUploading[i]"
+                  class="flex-1 py-3 px-4 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-primary-400 dark:hover:border-primary-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  <lucide-icon [name]="UploadIcon" class="h-4 w-4 text-slate-400"></lucide-icon>
+                  <span class="text-xs font-bold text-slate-500">
+                    {{ galleryImageUploading[i] ? 'Subiendo...' : 'Seleccionar imagen' }}
+                  </span>
+                </button>
+                <div *ngIf="currentProduct.imagenes![i]" class="h-12 w-12 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 flex-shrink-0">
+                  <img [src]="currentProduct.imagenes![i]" class="h-full w-full object-cover">
+                </div>
+              </div>
+            </div>
+            <div *ngIf="!currentProduct.imagenes || currentProduct.imagenes.length === 0" class="text-center py-8 border-dashed border-2 border-slate-100 dark:border-slate-800 rounded-3xl">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No hay imágenes en galería</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="group">
+          <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Ficha Técnica / Descripción</label>
+          <textarea [(ngModel)]="currentProduct.descripcion" rows="4" class="input-field py-4" placeholder="Especificaciones, usos y normativas..."></textarea>
+        </div>
+
+        <!-- Visibility Toggles -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
+          <div (click)="currentProduct.activo = !currentProduct.activo" class="p-5 rounded-3xl border-2 transition-all cursor-pointer flex items-center gap-4" [class]="currentProduct.activo ? 'bg-emerald-50 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-900/30' : 'bg-slate-50 border-slate-100 dark:bg-slate-950 dark:border-slate-800'">
+            <div class="h-6 w-12 rounded-full relative transition-colors duration-300" [class]="currentProduct.activo ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'">
+              <div class="absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300" [class]="currentProduct.activo ? 'left-7' : 'left-1'"></div>
+            </div>
+            <span class="text-xs font-black uppercase tracking-widest" [class]="currentProduct.activo ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500'">Visibilidad Pública</span>
+          </div>
+          
+          <div (click)="currentProduct.destacado = !currentProduct.destacado" class="p-5 rounded-3xl border-2 transition-all cursor-pointer flex items-center gap-4" [class]="currentProduct.destacado ? 'bg-primary-50 border-primary-100 dark:bg-primary-900/20 dark:border-primary-900/30' : 'bg-slate-50 border-slate-100 dark:bg-slate-950 dark:border-slate-800'">
+            <div class="h-6 w-12 rounded-full relative transition-colors duration-300" [class]="currentProduct.destacado ? 'bg-primary-600' : 'bg-slate-300 dark:bg-slate-700'">
+              <div class="absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300" [class]="currentProduct.destacado ? 'left-7' : 'left-1'"></div>
+            </div>
+            <span class="text-xs font-black uppercase tracking-widest" [class]="currentProduct.destacado ? 'text-primary-700 dark:text-primary-400' : 'text-slate-500'">Producto Destacado</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-8 py-6 bg-slate-50 dark:bg-slate-950/50 flex justify-end gap-4 border-t border-slate-100 dark:border-slate-800">
+        <button type="button" (click)="closeModal()" class="px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-white dark:hover:bg-slate-800 transition-all">
+          Descartar
+        </button>
+        <button type="button" (click)="saveProduct()" [disabled]="!currentProduct.nombre || !currentProduct.codigo || !currentProduct.precio" class="btn-primary px-10 py-4 shadow-xl shadow-primary-600/20 disabled:opacity-30">
+          Guardar Cambios
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

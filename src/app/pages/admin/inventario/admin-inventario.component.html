@@ -1,0 +1,117 @@
+<div class="space-y-10 animate-fade-in">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+    <div>
+      <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 mb-3 font-bold text-[10px] uppercase tracking-widest">
+        Audit Log de Stock
+      </div>
+      <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter flex items-center gap-3">
+        <lucide-icon [name]="ActivityIcon" class="h-8 w-8 text-primary-600"></lucide-icon>
+        Control de Inventario
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Historial detallado de flujos y movimientos de suministros.</p>
+    </div>
+    <div class="flex gap-3">
+      <button (click)="loadLogs()" class="btn-secondary py-3 px-6 text-xs uppercase tracking-widest flex items-center gap-3">
+        <lucide-icon [name]="RefreshCwIcon" class="h-4 w-4" [ngClass]="{'animate-spin': isLoading}"></lucide-icon>
+        Sincronizar Datos
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Card -->
+  <div class="surface p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-center border-slate-200/50 dark:border-slate-800/50">
+    <div class="relative flex-1 w-full group">
+      <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+        <lucide-icon [name]="SearchIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+      </div>
+      <input type="text" [(ngModel)]="searchTerm" (input)="applyFilters()"
+        class="input-field pl-12 w-full"
+        placeholder="Localizar por producto, código o identificador de pedido...">
+    </div>
+    
+    <div class="w-full sm:w-64 relative group">
+      <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+        <lucide-icon [name]="FilterIcon" class="h-5 w-5 text-slate-300 group-focus-within:text-primary-500 transition-colors"></lucide-icon>
+      </div>
+      <select [(ngModel)]="reasonFilter" (change)="applyFilters()" class="input-field pl-12 w-full appearance-none cursor-pointer font-bold">
+        <option value="todos">Todas las Operaciones</option>
+        <option value="sale">Ventas Directas</option>
+        <option value="manual_entry">Ingresos Manuales</option>
+        <option value="adjustment">Ajustes Técnicos</option>
+        <option value="return">Devoluciones Logísticas</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Logs Table Card -->
+  <div class="card bg-white dark:bg-slate-900 border-slate-200/50 dark:border-slate-800/50 overflow-hidden shadow-2xl">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+            <th class="px-8 py-5">Timestamp</th>
+            <th class="px-8 py-5">Recurso / Producto</th>
+            <th class="px-8 py-5 text-center">Variación</th>
+            <th class="px-8 py-5">Naturaleza</th>
+            <th class="px-8 py-5">Referencia de Origen</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+          <tr *ngIf="isLoading">
+            <td colspan="5" class="px-8 py-20 text-center">
+              <div class="h-12 w-12 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
+              <p class="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Analizando Registros...</p>
+            </td>
+          </tr>
+          
+          <tr *ngIf="!isLoading && filteredLogs.length === 0">
+            <td colspan="5" class="px-8 py-20 text-center">
+              <div class="h-16 w-16 bg-slate-50 dark:bg-slate-950 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-300">
+                <lucide-icon [name]="PackageIcon" class="h-8 w-8"></lucide-icon>
+              </div>
+              <p class="text-sm font-bold text-slate-500 dark:text-slate-400">Sin movimientos detectados bajo estos criterios.</p>
+            </td>
+          </tr>
+
+          <tr *ngFor="let log of filteredLogs" class="hover:bg-slate-50/50 dark:hover:bg-slate-950/30 transition-all group">
+            <td class="px-8 py-6 text-xs font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap">
+              {{ log.date | date:'dd/MM/yyyy HH:mm' }}
+            </td>
+            <td class="px-8 py-6">
+              <div class="font-black text-slate-900 dark:text-white group-hover:text-primary-600 transition-colors">{{ log.productName }}</div>
+              <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono tracking-wider mt-1 uppercase">ID: {{ log.productId | slice:0:12 }}</div>
+            </td>
+            <td class="px-8 py-6 text-center whitespace-nowrap">
+              <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl font-black text-xs"
+                [ngClass]="log.change > 0 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20' : 'bg-red-50 text-red-600 dark:bg-red-900/20'">
+                <lucide-icon [name]="log.change > 0 ? ArrowUpCircleIcon : ArrowDownCircleIcon" class="h-4 w-4"></lucide-icon>
+                {{ log.change > 0 ? '+' : '' }}{{ log.change }} un.
+              </span>
+            </td>
+            <td class="px-8 py-6">
+              <span class="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg border"
+                [ngClass]="{
+                  'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:border-blue-900/30': log.reason === 'sale',
+                  'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-900/30': log.reason === 'manual_entry',
+                  'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:border-amber-900/30': log.reason === 'adjustment',
+                  'bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-900/20 dark:border-purple-900/30': log.reason === 'return'
+                }">
+                {{ getReasonText(log.reason) }}
+              </span>
+            </td>
+            <td class="px-8 py-6 text-xs">
+              <div *ngIf="log.orderId" class="flex flex-col">
+                <span class="text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest text-[9px] mb-1">Orden de Pedido</span>
+                <span class="font-mono text-primary-600 dark:text-primary-400 font-bold tracking-wider">{{ log.orderId }}</span>
+              </div>
+              <div *ngIf="log.adminEmail" class="flex flex-col">
+                <span class="text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest text-[9px] mb-1">Operador Autorizado</span>
+                <span class="text-slate-700 dark:text-slate-200 font-bold">{{ log.adminEmail }}</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
