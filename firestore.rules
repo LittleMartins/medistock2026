@@ -4,10 +4,11 @@ service cloud.firestore {
     
     // Función para verificar si el usuario es administrador
     function isAdmin() {
-      return request.auth != null && 
-             (request.auth.token.email.matches('(?i)admin@admin.com') || 
-              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.rol == 'admin');
+      return request.auth != null && (
+        request.auth.token.email.matches('(?i)admin@admin.com') || 
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
     }
     
     function isOwner(userId) {
@@ -17,22 +18,14 @@ service cloud.firestore {
     // --- PRODUCTOS ---
     match /products/{productId} {
       allow read: if true;
-      allow create, delete: if isAdmin();
-      allow update: if isAdmin() || (
-        request.auth != null && 
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock']) &&
-        request.resource.data.stock is int &&
-        request.resource.data.stock >= 0
-      );
+      allow create, delete, update: if isAdmin();
     }
 
     // --- PEDIDOS ---
     match /orders/{orderId} {
       allow read: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
       allow create: if request.auth != null && 
-                      request.resource.data.userId == request.auth.uid &&
-                      request.resource.data.total is number &&
-                      request.resource.data.estado in ['pendiente', 'pagado'];
+                      request.resource.data.userId == request.auth.uid;
       allow update: if isAdmin();
       allow delete: if false; // Los pedidos no se borran, se cancelan
     }
@@ -40,17 +33,14 @@ service cloud.firestore {
     // --- LOGS DE INVENTARIO ---
     match /inventory_logs/{logId} {
       allow read: if isAdmin();
-      allow create: if request.auth != null && 
-                      request.resource.data.change is int &&
-                      request.resource.data.reason in ['sale', 'return', 'manual'];
+      allow create: if isAdmin();
     }
 
     // --- USUARIOS ---
     match /users/{userId} {
       allow read: if isAdmin() || (request.auth != null && request.auth.uid == userId);
       allow create: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && request.auth.uid == userId && 
-                      !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']);
+      allow update: if request.auth != null && request.auth.uid == userId;
       allow delete: if isAdmin();
     }
 
@@ -66,17 +56,12 @@ service cloud.firestore {
 
     match /changeHistory/{historyId} {
       allow read: if isAdmin();
-      allow create: if request.auth != null && isAdmin();
+      allow create: if isAdmin();
     }
 
     match /providers/{providerId} {
       allow read: if isAdmin();
       allow create, update, delete: if isAdmin();
-    }
-
-    match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if isAdmin();
     }
 
     match /settings/{settingId} {
