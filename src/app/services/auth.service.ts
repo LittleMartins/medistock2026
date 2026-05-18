@@ -55,6 +55,10 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  get userDataValue(): UserData | null {
+    return this.userDataSubject.value;
+  }
+
   constructor() {
     authState(this.auth).subscribe(async (user: any) => {
       this.currentUserSubject.next(user);

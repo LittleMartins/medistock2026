@@ -126,7 +126,8 @@ export class ProductoDetalleComponent implements OnInit {
 
   async submitReview() {
     const userId = this.authService.currentUserValue?.uid;
-    const userName = this.authService.currentUserValue?.name || 'Usuario';
+    const userData = this.authService.userDataValue;
+    const userName = userData?.name || 'Usuario';
     
     if (!userId || !this.product) {
       this.toastService.show('Debes iniciar sesión para dejar una reseña', 'warning');

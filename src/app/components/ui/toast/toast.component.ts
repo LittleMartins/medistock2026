@@ -1,12 +1,12 @@
 import { Component, Injectable, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, CheckCircle, AlertCircle, Info, X } from 'lucide-angular';
+import { LucideAngularModule, CheckCircle, AlertCircle, Info, X, AlertTriangle } from 'lucide-angular';
 import { animate, style, transition, trigger } from '@angular/animations';
 
 export interface Toast {
   id: number;
   message: string;
-  type: 'success' | 'error' | 'info';
+  type: 'success' | 'error' | 'info' | 'warning';
 }
 
 @Injectable({
@@ -20,7 +20,7 @@ export class ToastService {
     return this.toastsSignal;
   }
 
-  show(message: string, type: 'success' | 'error' | 'info' = 'success', duration = 3000) {
+  show(message: string, type: 'success' | 'error' | 'info' | 'warning' = 'success', duration = 3000) {
     const id = this.nextId++;
     this.toastsSignal.update(toasts => [...toasts, { id, message, type }]);
 
@@ -47,13 +47,15 @@ export class ToastService {
         [ngClass]="{
           'bg-green-100 text-green-800 dark:bg-green-900/80 dark:text-green-200': toast.type === 'success',
           'bg-red-100 text-red-800 dark:bg-red-900/80 dark:text-red-200': toast.type === 'error',
-          'bg-blue-100 text-blue-800 dark:bg-blue-900/80 dark:text-blue-200': toast.type === 'info'
+          'bg-blue-100 text-blue-800 dark:bg-blue-900/80 dark:text-blue-200': toast.type === 'info',
+          'bg-amber-100 text-amber-800 dark:bg-amber-900/80 dark:text-amber-200': toast.type === 'warning'
         }"
         role="alert"
       >
         <lucide-icon *ngIf="toast.type === 'success'" [name]="CheckCircleIcon" class="h-5 w-5 mr-3 flex-shrink-0"></lucide-icon>
         <lucide-icon *ngIf="toast.type === 'error'" [name]="AlertCircleIcon" class="h-5 w-5 mr-3 flex-shrink-0"></lucide-icon>
         <lucide-icon *ngIf="toast.type === 'info'" [name]="InfoIcon" class="h-5 w-5 mr-3 flex-shrink-0"></lucide-icon>
+        <lucide-icon *ngIf="toast.type === 'warning'" [name]="AlertTriangleIcon" class="h-5 w-5 mr-3 flex-shrink-0"></lucide-icon>
         
         <span class="font-medium mr-4">{{ toast.message }}</span>
         
@@ -80,6 +82,7 @@ export class ToastComponent {
   readonly CheckCircleIcon = CheckCircle;
   readonly AlertCircleIcon = AlertCircle;
   readonly InfoIcon = Info;
+  readonly AlertTriangleIcon = AlertTriangle;
   readonly XIcon = X;
 
   constructor(public toastService: ToastService) {}
