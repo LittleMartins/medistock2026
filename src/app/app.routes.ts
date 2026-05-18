@@ -5,6 +5,7 @@ import { ProductoDetalleComponent } from './pages/producto-detalle/producto-deta
 import { CarritoComponent } from './pages/carrito/carrito.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { TrackingComponent } from './pages/tracking/tracking.component';
+import { FaqComponent } from './pages/faq/faq.component';
 import { LoginComponent } from './pages/auth/login.component';
 import { RegisterComponent } from './pages/auth/register.component';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password.component';
@@ -22,6 +23,7 @@ export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'productos', component: ProductosComponent },
   { path: 'proveedores', loadComponent: () => import('./pages/proveedores/proveedores.component').then(m => m.ProveedoresComponent) },
+  { path: 'faq', component: FaqComponent },
   { path: 'producto/:id', component: ProductoDetalleComponent },
   { path: 'carrito', component: CarritoComponent },
   { path: 'checkout', component: CheckoutComponent },
