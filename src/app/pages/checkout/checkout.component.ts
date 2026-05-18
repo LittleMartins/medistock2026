@@ -8,9 +8,11 @@ import { OrderService } from '../../services/order.service';
 import { EmailService } from '../../services/email.service';
 import { PaymentService } from '../../services/payment.service';
 import { ModalService } from '../../components/ui/modal/modal.component';
+import { CouponService } from '../../services/coupon.service';
 import { validateRUT } from '../../utils/validators';
-import { LucideAngularModule, CreditCard, MapPin, CheckCircle, Package, Lock, XCircle } from 'lucide-angular';
+import { LucideAngularModule, CreditCard, MapPin, CheckCircle, Package, Lock, XCircle, Ticket, Trash2 } from 'lucide-angular';
 import { firstValueFrom, Observable } from 'rxjs';
+import { Coupon } from '../../models/coupon.model';
 
 @Component({
   selector: 'app-checkout',
@@ -25,6 +27,7 @@ export class CheckoutComponent implements OnInit {
   private emailService = inject(EmailService);
   private paymentService = inject(PaymentService);
   private modalService = inject(ModalService);
+  private couponService = inject(CouponService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -34,6 +37,8 @@ export class CheckoutComponent implements OnInit {
   readonly PackageIcon = Package;
   readonly LockIcon = Lock;
   readonly XCircleIcon = XCircle;
+  readonly TicketIcon = Ticket;
+  readonly Trash2Icon = Trash2;
 
   cartItems$: Observable<CartItem[]> = this.cartService.cartItems$;
   total$: Observable<number> = this.cartService.cartTotal$;
@@ -69,6 +74,13 @@ export class CheckoutComponent implements OnInit {
   successMessage = '';
   createdOrderId = '';
   rutError = '';
+  
+  // Cupón
+  couponCode = '';
+  appliedCoupon: Coupon | null = null;
+  couponDiscount = 0;
+  isApplyingCoupon = false;
+  couponError = '';
 
   regionesChile = [
     'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 'Valparaíso', 
@@ -105,6 +117,50 @@ export class CheckoutComponent implements OnInit {
 
   isFormValid(): boolean {
     return !!(this.nombre && this.apellido && this.telefono && this.direccion && this.region && this.comuna);
+  }
+
+  async applyCoupon() {
+    if (!this.couponCode.trim()) {
+      this.couponError = 'Por favor, ingresa un código de cupón';
+      return;
+    }
+
+    this.isApplyingCoupon = true;
+    this.couponError = '';
+
+    try {
+      const coupon = await this.couponService.getCouponByCode(this.couponCode);
+      
+      if (!coupon) {
+        this.couponError = 'Cupón inválido o expirado';
+        return;
+      }
+
+      const items = await firstValueFrom(this.cartService.cartItems$);
+      const subtotal = this.getSubtotalNormal(items) - this.getDiscountTotal(items);
+
+      this.couponDiscount = this.couponService.calculateDiscount(coupon, subtotal);
+      
+      if (this.couponDiscount <= 0) {
+        this.couponError = 'No cumples con los requisitos para usar este cupón';
+        return;
+      }
+
+      this.appliedCoupon = coupon;
+      this.successMessage = `¡Cupón aplicado! Descuento de $${this.couponDiscount.toLocaleString('es-CL')}`;
+    } catch (error) {
+      console.error('Error al aplicar cupón:', error);
+      this.couponError = 'Error al validar el cupón';
+    } finally {
+      this.isApplyingCoupon = false;
+    }
+  }
+
+  removeCoupon() {
+    this.appliedCoupon = null;
+    this.couponDiscount = 0;
+    this.couponCode = '';
+    this.couponError = '';
   }
 
   async processCheckout() {
@@ -331,7 +387,7 @@ export class CheckoutComponent implements OnInit {
       const items = await firstValueFrom(this.cartService.cartItems$);
       const subtotal = this.getSubtotalNormal(items) - this.getDiscountTotal(items);
       const envio = this.tipoDespacho === 'express' ? 4990 : 0;
-      const totalFinal = subtotal + envio;
+      const totalFinal = Math.max(0, (subtotal - this.couponDiscount) + envio);
       
       const sessionId = `SESSION_${new Date().getTime()}`;
       const buyOrder = `ORD_${new Date().getTime()}`;
@@ -426,7 +482,12 @@ export class CheckoutComponent implements OnInit {
       }));
 
       const envio = this.tipoDespacho === 'express' ? 4990 : 0;
-      const totalConEnvio = subtotal + envio;
+      const totalConEnvio = Math.max(0, (subtotal - this.couponDiscount) + envio);
+      
+      // Usar el cupón si está aplicado
+      if (this.appliedCoupon?.id) {
+        await this.couponService.useCoupon(this.appliedCoupon.id);
+      }
 
       // El total ya incluye el envío porque lo guardamos así en procesarPedido()
       const orderData: any = {
@@ -434,6 +495,13 @@ export class CheckoutComponent implements OnInit {
         userEmail: user?.email || '',
         items: orderItems,
         subtotal: subtotal,
+        descuentoCupon: this.couponDiscount,
+        cuponAplicado: this.appliedCoupon ? {
+          id: this.appliedCoupon.id,
+          code: this.appliedCoupon.code,
+          discountType: this.appliedCoupon.discountType,
+          discountValue: this.appliedCoupon.discountValue
+        } : null,
         envio: envio,
         total: totalConEnvio,
         tipoDespacho: this.tipoDespacho,
