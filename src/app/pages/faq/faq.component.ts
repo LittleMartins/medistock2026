@@ -38,7 +38,7 @@ interface FAQItem {
               <lucide-icon [name]="MailIcon" class="w-6 h-6 text-blue-600"></lucide-icon>
             </div>
             <h3 class="font-semibold text-gray-900 mb-1">Correo</h3>
-            <p class="text-gray-600">soporte@medistock.cl</p>
+            <p class="text-gray-600">soporte&#64;medistock.cl</p>
           </div>
           <div class="bg-white rounded-xl shadow-sm p-6 text-center">
             <div class="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
