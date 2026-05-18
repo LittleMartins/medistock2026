@@ -3,7 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService, UserRole } from '../../services/auth.service';
-import { validateRUT, validatePassword } from '../../utils/validators';
+import { 
+  validateRUT, 
+  validatePassword, 
+  validateChileanPhone, 
+  validateChileanPostalCode, 
+  validateEmail,
+  formatRUT,
+  formatChileanPhone
+} from '../../utils/validators';
 import { LucideAngularModule, UserPlus, Mail, Lock, User, MapPin, Phone, Building2, Activity, XCircle, CreditCard } from 'lucide-angular';
 
 @Component({
@@ -54,6 +62,10 @@ export class RegisterComponent {
   isLoading = false;
   errorMessage = '';
   rutError = '';
+  empresaRutError = '';
+  telefonoError = '';
+  codigoPostalError = '';
+  emailError = '';
   passwordErrors: string[] = [];
   showPassword = false;
 
@@ -106,6 +118,38 @@ export class RegisterComponent {
     this.rutError = validateRUT(this.rut) ? '' : 'El RUT ingresado no es válido';
   }
 
+  validateEmpresaRUTInput() {
+    if (!this.empresaRut) {
+      this.empresaRutError = '';
+      return;
+    }
+    this.empresaRutError = validateRUT(this.empresaRut) ? '' : 'El RUT de empresa no es válido';
+  }
+
+  validatePhoneInput() {
+    if (!this.telefono) {
+      this.telefonoError = '';
+      return;
+    }
+    this.telefonoError = validateChileanPhone(this.telefono) ? '' : 'Ingresa un teléfono válido (+569XXXXXXXX)';
+  }
+
+  validatePostalCodeInput() {
+    if (!this.codigoPostal) {
+      this.codigoPostalError = '';
+      return;
+    }
+    this.codigoPostalError = validateChileanPostalCode(this.codigoPostal) ? '' : 'Ingresa un código postal válido';
+  }
+
+  validateEmailInput() {
+    if (!this.email) {
+      this.emailError = '';
+      return;
+    }
+    this.emailError = validateEmail(this.email) ? '' : 'Ingresa un correo electrónico válido';
+  }
+
   validatePasswordInput() {
     const result = validatePassword(this.password);
     this.passwordErrors = result.errors;
@@ -113,30 +157,47 @@ export class RegisterComponent {
 
   formatRUT() {
     if (!this.rut) return;
-    
-    let cleanRUT = this.rut.replace(/[^0-9kK]/g, '');
-    if (cleanRUT.length > 1) {
-      const dv = cleanRUT.slice(-1);
-      const cuerpo = cleanRUT.slice(0, -1);
-      
-      if (cuerpo.length > 0) {
-        let formatted = '';
-        for (let i = cuerpo.length - 1, j = 1; i >= 0; i--, j++) {
-          formatted = cuerpo.charAt(i) + formatted;
-          if (j % 3 === 0 && i > 0) {
-            formatted = '.' + formatted;
-          }
-        }
-        this.rut = formatted + '-' + dv.toUpperCase();
-      }
-    }
+    this.rut = formatRUT(this.rut);
+  }
+
+  formatPhone() {
+    if (!this.telefono) return;
+    this.telefono = formatChileanPhone(this.telefono);
   }
 
   async onSubmit() {
-    // Validar RUT
+    // Validar RUT personal
     if (!this.rut || !validateRUT(this.rut)) {
       this.errorMessage = 'Por favor, ingresa un RUT válido';
       this.rutError = 'El RUT ingresado no es válido';
+      return;
+    }
+
+    // Validar RUT de empresa si es institución
+    if (this.role === 'institucion' && this.empresaRut && !validateRUT(this.empresaRut)) {
+      this.errorMessage = 'Por favor, ingresa un RUT de empresa válido';
+      this.empresaRutError = 'El RUT de empresa no es válido';
+      return;
+    }
+
+    // Validar teléfono
+    if (!this.telefono || !validateChileanPhone(this.telefono)) {
+      this.errorMessage = 'Por favor, ingresa un teléfono válido';
+      this.telefonoError = 'Ingresa un teléfono válido (+569XXXXXXXX)';
+      return;
+    }
+
+    // Validar código postal
+    if (this.codigoPostal && !validateChileanPostalCode(this.codigoPostal)) {
+      this.errorMessage = 'Por favor, ingresa un código postal válido';
+      this.codigoPostalError = 'Ingresa un código postal válido';
+      return;
+    }
+
+    // Validar email
+    if (!this.email || !validateEmail(this.email)) {
+      this.errorMessage = 'Por favor, ingresa un correo electrónico válido';
+      this.emailError = 'Ingresa un correo electrónico válido';
       return;
     }
 
