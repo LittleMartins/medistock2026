@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, ChevronDown, ChevronUp, HelpCircle, Phone, Mail, Truck, CreditCard, Shield, Package } from 'lucide-angular';
+import { ConfigService } from '../../services/config.service';
 
 interface FAQItem {
   question: string;
@@ -31,21 +32,21 @@ interface FAQItem {
               <lucide-icon [name]="PhoneIcon" class="w-6 h-6 text-red-600"></lucide-icon>
             </div>
             <h3 class="font-semibold text-gray-900 mb-1">Teléfono</h3>
-            <p class="text-gray-600">+56 2 2123 4567</p>
+            <p class="text-gray-600">{{ config.contactPhone }}</p>
           </div>
           <div class="bg-white rounded-xl shadow-sm p-6 text-center">
             <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-3">
               <lucide-icon [name]="MailIcon" class="w-6 h-6 text-blue-600"></lucide-icon>
             </div>
             <h3 class="font-semibold text-gray-900 mb-1">Correo</h3>
-            <p class="text-gray-600">soporte&#64;medistock.cl</p>
+            <p class="text-gray-600">{{ config.contactEmail.replace('@', '&#64;') }}</p>
           </div>
           <div class="bg-white rounded-xl shadow-sm p-6 text-center">
             <div class="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
               <lucide-icon [name]="PackageIcon" class="w-6 h-6 text-green-600"></lucide-icon>
             </div>
             <h3 class="font-semibold text-gray-900 mb-1">Horario</h3>
-            <p class="text-gray-600">Lun-Vie: 9:00 - 18:00</p>
+            <p class="text-gray-600">{{ config.schedule }}</p>
           </div>
         </div>
 
@@ -141,6 +142,8 @@ interface FAQItem {
   `
 })
 export class FaqComponent {
+  private configService = inject(ConfigService);
+  
   readonly HelpCircleIcon = HelpCircle;
   readonly PhoneIcon = Phone;
   readonly MailIcon = Mail;
@@ -150,6 +153,8 @@ export class FaqComponent {
   readonly TruckIcon = Truck;
   readonly CreditCardIcon = CreditCard;
   readonly ShieldIcon = Shield;
+  
+  readonly config = this.configService.getConfig();
 
   faqItems: FAQItem[] = [
     {

@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthService, UserData } from '../../../services/auth.service';
-import { LucideAngularModule, User, Mail, Phone, MapPin, Camera, Save, Loader2, ChevronRight, Home, Building2, Map, Link, Package, Check, CheckCircle, XCircle, AlertCircle } from 'lucide-angular';
+import { ConfigService } from '../../../services/config.service';
+import { LucideAngularModule, User, Mail, Phone, MapPin, Camera, Save, Loader2, ChevronRight, Home, Building2, Map, Link, Package, Check, CheckCircle, XCircle, AlertCircle, HelpCircle } from 'lucide-angular';
 import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
 import { firstValueFrom } from 'rxjs';
 
@@ -16,6 +17,7 @@ import { firstValueFrom } from 'rxjs';
 export class AjustesComponent implements OnInit {
   private authService = inject(AuthService);
   private storage = inject(Storage);
+  private configService = inject(ConfigService);
 
   readonly UserIcon = User;
   readonly MailIcon = Mail;
@@ -33,6 +35,9 @@ export class AjustesComponent implements OnInit {
   readonly CheckIcon = Check;
   readonly CheckCircleIcon = CheckCircle;
   readonly XCircleIcon = XCircle;
+  readonly HelpCircleIcon = HelpCircle;
+  
+  readonly config = this.configService.getConfig();
 
   userData: UserData | null = null;
   isLoading = true;

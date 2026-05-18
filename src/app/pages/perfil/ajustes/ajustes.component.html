@@ -194,6 +194,52 @@
           </div>
 
         </form>
+        
+        <!-- Contact Info Section -->
+        <div class="mt-8 surface p-6 sm:p-10 border-slate-200/50 dark:border-slate-800/50">
+          <div class="mb-8 flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-primary-100 dark:bg-primary-900/20 flex items-center justify-center text-primary-600">
+              <lucide-icon [name]="HelpCircleIcon" class="h-5 w-5"></lucide-icon>
+            </div>
+            <div>
+              <h3 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Información de Contacto</h3>
+              <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Soporte y atención al cliente</p>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <a href="tel:{{ config.contactPhone }}" class="group p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-slate-100 dark:border-slate-800">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="h-10 w-10 rounded-xl bg-red-100 dark:bg-red-900/20 flex items-center justify-center text-red-600 group-hover:scale-110 transition-transform">
+                  <lucide-icon [name]="PhoneIcon" class="h-5 w-5"></lucide-icon>
+                </div>
+                <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Teléfono</span>
+              </div>
+              <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">{{ config.contactPhone }}</p>
+            </a>
+            
+            <a href="mailto:{{ config.contactEmail }}" class="group p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-slate-100 dark:border-slate-800">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="h-10 w-10 rounded-xl bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                  <lucide-icon [name]="MailIcon" class="h-5 w-5"></lucide-icon>
+                </div>
+                <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Correo</span>
+              </div>
+              <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">{{ config.contactEmail }}</p>
+            </a>
+            
+            <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="h-10 w-10 rounded-xl bg-green-100 dark:bg-green-900/20 flex items-center justify-center text-green-600">
+                  <lucide-icon [name]="PackageIcon" class="h-5 w-5"></lucide-icon>
+                </div>
+                <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Horario</span>
+              </div>
+              <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">{{ config.schedule }}</p>
+            </div>
+          </div>
+        </div>
+        
       </div>
     </div>
   </div>
